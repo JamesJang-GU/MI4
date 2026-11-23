@@ -5,13 +5,15 @@ on:
   schedule:
     - cron: "0 16 * * *"
   workflow_dispatch:
-  # Rebuild as soon as SCFI/CCFI/BDI CSVs are uploaded.
+  # Rebuild + redeploy on every push (code changes, SCFI/CCFI/BDI CSV uploads).
+  # The bot's own push uses GITHUB_TOKEN, which does not retrigger this workflow.
   push:
     branches: [main]
-    paths: ["data/manual/**"]
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: mi4-daily
@@ -63,3 +65,18 @@ jobs:
             git commit -m "chore: mi4 daily build $(date -u +%Y-%m-%d)"
             git push
           fi
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  # Requires Settings → Pages → Source: "GitHub Actions".
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
