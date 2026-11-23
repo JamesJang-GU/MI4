@@ -38,7 +38,7 @@ button,input,select{font-family:var(--mono)}
 .panel>header{display:flex;align-items:center;gap:7px;padding:5px 7px;border-bottom:1px solid var(--line2);background:var(--panel2);min-height:27px}
 .code{color:#000;background:var(--amber);font-weight:700;font-size:9px;padding:1px 5px;letter-spacing:.08em;white-space:nowrap}
 .code.red{background:var(--red);color:#fff}.code.blue{background:var(--down);color:#000}
-.code.orange{background:var(--orange);color:#000}.code.violet{background:var(--violet);color:#000}
+.code.orange{background:var(--orange);color:#000}.code.violet{background:var(--violet);color:#000}.code.amber{background:var(--amber);color:#000}
 .code.green{background:var(--green);color:#000}
 .ttl{color:var(--amber);font-size:10px;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .meta{margin-left:auto;color:var(--dim);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -254,27 +254,27 @@ tbody tr:hover{background:#151515}
 
 <main class="grid" id="grid">
   <section class="panel composite span3">
-    <header><span class="code">SYS</span><span class="ttl">SUPPLY CHAIN STRESS</span><span class="meta" id="compmeta">COMPOSITE</span></header>
+    <header><span class="code amber">SCM</span><span class="ttl">SUPPLY CHAIN STRESS</span><span class="meta" id="compmeta">COMPOSITE</span></header>
     <div class="body" id="composite"></div>
   </section>
 
   <section class="panel map span6">
-    <header><span class="code red">MAP</span><span class="ttl">GLOBAL CHOKEPOINT MONITOR</span><span class="meta">WORLDMONITOR OPEN DATA · CLICK A NODE</span></header>
+    <header><span class="code red">MARITIME</span><span class="ttl">GLOBAL CHOKEPOINT MONITOR</span><span class="meta">WORLDMONITOR OPEN DATA · CLICK A NODE</span></header>
     <div class="body" id="map"></div>
   </section>
 
   <section class="panel alerts span3">
-    <header><span class="code red">ALERT</span><span class="ttl">SIGNAL FEED</span><span class="meta" id="alertmeta"></span></header>
+    <header><span class="code red">ALERT</span><span class="ttl">SCM SIGNALS</span><span class="meta" id="alertmeta"></span></header>
     <div class="body" id="alerts"></div>
   </section>
 
   <section class="panel chokes span7">
-    <header><span class="code red">CHOKE</span><span class="ttl">BOTTLENECK BOARD</span><button class="linkbtn" data-entity="category" data-id="chokepoint">ALL →</button><span class="meta">13 MARITIME CHOKEPOINTS · SCORE / WAR RISK / FLOW</span></header>
+    <header><span class="code red">CHOKE</span><span class="ttl">MARITIME BOTTLENECKS</span><button class="linkbtn" data-entity="category" data-id="chokepoint">ALL →</button><span class="meta">13 MARITIME CHOKEPOINTS · SCORE / WAR RISK / FLOW</span></header>
     <div class="body scroll" id="choketable"></div>
   </section>
 
   <section class="panel freight span5">
-    <header><span class="code">SEA</span><span class="ttl">FREIGHT &amp; CAPACITY</span><span class="meta">MI2 · KSG / Linerlytica / Alphaliner / TAC</span></header>
+    <header><span class="code amber">FREIGHT</span><span class="ttl">FREIGHT &amp; CAPACITY</span><span class="meta">MI2 · KSG / Linerlytica / Alphaliner / TAC</span></header>
     <div class="body" id="freight"></div>
   </section>
 
@@ -289,17 +289,17 @@ tbody tr:hover{background:#151515}
   </section>
 
   <section class="panel countries span4">
-    <header><span class="code blue">CTRY</span><span class="ttl">RESILIENCE</span><span class="meta">WORLDMONITOR 5-FACTOR</span></header>
+    <header><span class="code blue">RESILIENCE</span><span class="ttl">RESILIENCE</span><span class="meta">WORLDMONITOR 5-FACTOR</span></header>
     <div class="body" id="countries"></div>
   </section>
 
   <section class="panel chain span7">
-    <header><span class="code">FLOW</span><span class="ttl">TRANSMISSION CHAIN</span><span class="meta">BOTTLENECK → FREIGHT → ENERGY → MACRO → PRICES</span></header>
+    <header><span class="code violet">FLOW</span><span class="ttl">TRANSMISSION CHAIN</span><span class="meta">BOTTLENECK → FREIGHT → ENERGY → MACRO → PRICES</span></header>
     <div class="body" id="chain"></div>
   </section>
 
   <section class="panel insights span5">
-    <header><span class="code green">INS</span><span class="ttl">KEY INSIGHTS</span><span class="meta">AUTO-GENERATED</span></header>
+    <header><span class="code green">INSIGHTS</span><span class="ttl">KEY INSIGHTS</span><span class="meta">AUTO-GENERATED</span></header>
     <div class="body" id="insights"></div>
   </section>
 </main>
