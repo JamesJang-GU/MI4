@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 CFG = {}
-_cfg_path = ROOT / 'mi3.config.json'
+_cfg_path = ROOT / 'mi4.config.json'
 if _cfg_path.exists():
     CFG = json.loads(_cfg_path.read_text(encoding='utf-8'))
 WM = Path(os.environ.get('WORLDMONITOR_ROOT', CFG.get('data_sources', {}).get('worldmonitor', '../worldmonitor')))

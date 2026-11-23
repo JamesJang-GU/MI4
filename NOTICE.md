@@ -1,9 +1,9 @@
-# NOTICE / Attribution — MI3
+# NOTICE / Attribution — MI4
 
-## MI3
-- Project: MI3 — Global Freight & Trade Intelligence
+## MI4
+- Project: MI4 — Global Freight & Trade Intelligence
 - Integration layer for MI2 + WorldMonitor.
-- Composite index, transmission-chain weights, alert rules, and dashboard UI are original to MI3 and are not official MI2 or WorldMonitor indices.
+- Composite index, transmission-chain weights, alert rules, and dashboard UI are original to MI4 and are not official MI2 or WorldMonitor indices.
 
 ## MI2
 - Source: https://github.com/JamesJang-GU/MI2

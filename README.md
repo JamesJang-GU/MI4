@@ -1,12 +1,12 @@
-# MI3 — Global Freight & Trade Intelligence
+# MI4 — Global Freight & Trade Intelligence
 
-**MI3**는 MI2(해운·항공 운송 크롤러)와 WorldMonitor(글로벌 병목·거시·국가 회복력)를 **하나의 대시보드**로 통합한 차세대 프로젝트입니다.
+**MI4**는 MI2(해운·항공 운송 크롤러)와 WorldMonitor(글로벌 병목·거시·국가 회복력)를 **하나의 대시보드**로 통합한 차세대 프로젝트입니다.
 
-> MI2는 데이터 수집 계층, MI3는 통합·표현 계층입니다. MI3는 MI2의 `summary.json`과 SQLite 스냅샷을 읽고, WorldMonitor 공개 데이터를 병합해 1화면 SCM 인텔리전스를 제공합니다.
+> MI2는 데이터 수집 계층, MI4는 통합·표현 계층입니다. MI4는 MI2의 `summary.json`과 SQLite 스냅샷을 읽고, WorldMonitor 공개 데이터를 병합해 1화면 SCM 인텔리전스를 제공합니다.
 
-## 1. MI3 = MI2 + WorldMonitor
+## 1. MI4 = MI2 + WorldMonitor
 
-| 영역 | MI2 (데이터) | WorldMonitor (데이터) | MI3 (표현) |
+| 영역 | MI2 (데이터) | WorldMonitor (데이터) | MI4 (표현) |
 |---|---|---|---|
 | 해운 운임 | SCFI 18항로, BDI/BCI/BPI/BSI | Shipping rates (CCFI 등) | Freight 패널 |
 | 선대/역량 | Linerlytica, Alphaliner Top100 | — | Freight 패널 |
@@ -60,7 +60,7 @@ python3 build.py
 python3 make_standalone.py
 ```
 
-Live 데이터: shipping rates, commodity quotes, energy prices, chokepoint history/bypass, country chokepoint exposure, macro signals, world CPI, FRED series. 헤더의 `MI3 LIVE` 칩 클릭 → 상세.
+Live 데이터: shipping rates, commodity quotes, energy prices, chokepoint history/bypass, country chokepoint exposure, macro signals, world CPI, FRED series. 헤더의 `MI4 LIVE` 칩 클릭 → 상세.
 
 ## 4. 화면 구성
 
@@ -85,7 +85,7 @@ Live 데이터: shipping rates, commodity quotes, energy prices, chokepoint hist
 ## 5. 파일 구조
 
 ```
-MI3/
+MI4/
 ├── index.html              # 대시보드 (data.js 참조)
 ├── standalone.html         # data.js 인라인 단일 파일
 ├── data.js                 # build.py 생성 (window.UNIFIED + window.WORLD_MAP)
@@ -93,7 +93,7 @@ MI3/
 ├── fetch_worldmonitor.py   # 공개 데이터 + 선택적 live API 수집
 ├── make_map.py             # worldmonitor TopoJSON → SVG land path
 ├── make_standalone.py      # index.html + data.js → standalone.html
-├── mi3.config.json         # 프로젝트 설정 (MI2/WorldMonitor 경로)
+├── mi4.config.json         # 프로젝트 설정 (MI2/WorldMonitor 경로)
 ├── Makefile                # fetch / build / standalone / serve
 ├── data/
 │   ├── unified.json        # 통합 데이터
@@ -118,7 +118,7 @@ WorldMonitor open data (매일 06:23 UTC)                │
   └─ chokepoints/{date}.json + latest.json             │
   └─ scorecard (public)                                │
                     │                                  │
-                    └──────────► MI3 build.py ◄────────┘
+                    └──────────► MI4 build.py ◄────────┘
                                       │
                                       ├─ data/unified.json
                                       ├─ data.js
@@ -163,26 +163,26 @@ z(x)       = 1년 z-score; 50 = 1년 평균
 ## 10. GitHub에 올리기 / 배포
 
 ### 1) GitHub에서 repo 생성
-- https://github.com/new → 이름 `MI3` → Public → Create.
+- https://github.com/new → 이름 `MI4` → Public → Create.
 - 또는 CLI(gh)가 있으면:
   ```bash
-  gh repo create JamesJang-GU/MI3 --public --source=. --push
+  gh repo create JamesJang-GU/MI4 --public --source=. --push
   ```
 
-### 2) Local MI3 push
+### 2) Local MI4 push
 ```bash
-cd /home/user/MI3
-git remote add origin https://github.com/JamesJang-GU/MI3.git
+cd /home/user/MI4
+git remote add origin https://github.com/JamesJang-GU/MI4.git
 git push -u origin main
 ```
 
 ### 3) GitHub Pages
 - Settings → Pages → Build and deployment → Source: **Deploy from a branch**
 - Branch: **main** → /(root) → Save
-- URL: `https://jamesjang-gu.github.io/MI3/`
+- URL: `https://jamesjang-gu.github.io/MI4/`
 
 ### 4) Daily build workflow (이미 포함됨)
-`.github/workflows/mi3-daily.yml`
+`.github/workflows/mi4-daily.yml`
 - 매일 **01:00 KST** (`cron: "0 16 * * *"`)
 - MI2 repo clone → WorldMonitor 공개 데이터 fetch → `build.py` → `make_standalone.py` → commit/push
 - MI2의 00:00 KST 크롤링이 끝난 뒤 실행되도록 01:00 KST로 설정
@@ -192,15 +192,15 @@ git push -u origin main
 - GitHub Settings → Secrets and variables → Actions → New repository secret
   - 이름: `WORLDMONITOR_API_KEY`
   - 값: `wm_xxx`
-- `.github/workflows/mi3-daily.yml`의 fetch step을 `python3 fetch_worldmonitor.py --public-only` → `python3 fetch_worldmonitor.py`로 변경
+- `.github/workflows/mi4-daily.yml`의 fetch step을 `python3 fetch_worldmonitor.py --public-only` → `python3 fetch_worldmonitor.py`로 변경
 - `data/worldmonitor-live.json`은 `.gitignore`에 포함되어 커밋되지 않지만, `build.py`가 읽어 `data.js`에 live 데이터를 포함함
 - API 한도/비용 모니터링 필요
 
 ### 6) 확인
-- `https://jamesjang-gu.github.io/MI3/` 열기
-- 헤더 `MI3 CORE`, 10개 패널, 13개 지도 노드, 196개국 확인
+- `https://jamesjang-gu.github.io/MI4/` 열기
+- 헤더 `MI4 CORE`, 10개 패널, 13개 지도 노드, 196개국 확인
 - 쵸크포인트/지표/국가 클릭 → 상세 drawer
-- Actions 탭에서 `mi3-daily` 실행 로그 확인
+- Actions 탭에서 `mi4-daily` 실행 로그 확인
 
 ## 9. 한계 / 다음 단계
 

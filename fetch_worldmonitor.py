@@ -38,7 +38,7 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / 'data'
 DATA.mkdir(exist_ok=True)
 
-UA = 'MI3-GlobalIntel/0.1.0 (contact: ops@example.test)'
+UA = 'MI4-GlobalIntel/0.1.0 (contact: ops@example.test)'
 PUBLIC = 'https://www.worldmonitor.app'
 API = 'https://api.worldmonitor.app'
 TIMEOUT = 30

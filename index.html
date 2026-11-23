@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MI3 — Global Freight & Trade Intelligence</title>
+<title>MI4 — Global Freight & Trade Intelligence</title>
 <style>
 :root{
   --bg:#000; --panel:#0b0b0b; --panel2:#101010; --line:#2b2b2b; --line2:#1c1c1c;
@@ -239,9 +239,9 @@ tbody tr:hover{background:#151515}
 </head>
 <body>
 <header class="topbar">
-  <span class="logo">MI3</span>
+  <span class="logo">MI4</span>
   <span class="brand">GLOBAL FREIGHT &amp; TRADE INTELLIGENCE</span>
-  <span class="chip pub" id="srcchip">MI3 CORE</span>
+  <span class="chip pub" id="srcchip">MI4 CORE</span>
   <span class="chip" id="cpchip">13 CHOKEPOINTS</span>
   <span class="chip" id="ctrychip">196 COUNTRIES</span>
   <span class="topmeta">
@@ -862,7 +862,7 @@ function boot(){
   $('#built').textContent=U.meta.generated_at;
   $('#cpchip').textContent=U.chokepoints.items.length+' CHOKEPOINTS';
   $('#ctrychip').textContent=U.countries.items.filter(x=>x.avg!=null).length+' COUNTRIES';
-  if(U.live){ $('#srcchip').textContent='MI3 LIVE'; $('#srcchip').className='chip live'; $('#srcchip').dataset.entity='live'; $('#srcchip').dataset.id='live'; $('#srcchip').style.cursor='pointer'; $('#modechip').textContent='LIVE DATA'; $('#modechip').className='chip live'; }
+  if(U.live){ $('#srcchip').textContent='MI4 LIVE'; $('#srcchip').className='chip live'; $('#srcchip').dataset.entity='live'; $('#srcchip').dataset.id='live'; $('#srcchip').style.cursor='pointer'; $('#modechip').textContent='LIVE DATA'; $('#modechip').className='chip live'; }
   renderComposite(); renderMap(); renderAlerts(); renderChoketable(); renderFreight(); renderEnergy(); renderMacro(); renderCountries(); renderChain(); renderInsights();
   attachChartHover(document);
   clock(); setInterval(clock,1000);

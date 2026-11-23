@@ -26,7 +26,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 CFG = {}
-_cfg_path = ROOT / 'mi3.config.json'
+_cfg_path = ROOT / 'mi4.config.json'
 if _cfg_path.exists():
     CFG = json.loads(_cfg_path.read_text(encoding='utf-8'))
 MI2 = Path(os.environ.get('MI2_ROOT', CFG.get('data_sources', {}).get('mi2', '../MI2')))
@@ -450,7 +450,7 @@ if live_path.exists():
 # ---------------------------------------------------------------------------
 unified = {
     'meta': {
-        'project': 'MI3',
+        'project': 'MI4',
         'generated_at': datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC'),
         'snapshot_date': latest_cp['snapshot_date'],
         'sources': [

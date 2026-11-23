@@ -1,4 +1,4 @@
-name: mi3-daily
+name: mi4-daily
 
 # 01:00 KST (00:00 UTC) — MI2's 00:00 KST crawl has finished by then.
 on:
@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: mi3-daily
+  group: mi4-daily
   cancel-in-progress: false
 
 jobs:
@@ -40,19 +40,19 @@ jobs:
       - name: Fetch WorldMonitor public data
         run: python3 fetch_worldmonitor.py --public-only
 
-      - name: Build MI3 dashboard
+      - name: Build MI4 dashboard
         run: |
           python3 build.py
           python3 make_standalone.py
 
       - name: Commit & push
         run: |
-          git config user.name "mi3-bot"
-          git config user.email "mi3-bot@users.noreply.github.com"
+          git config user.name "mi4-bot"
+          git config user.email "mi4-bot@users.noreply.github.com"
           git add -A
           if git diff --cached --quiet; then
             echo "no changes"
           else
-            git commit -m "chore: mi3 daily build $(date -u +%Y-%m-%d) [skip ci]"
+            git commit -m "chore: mi4 daily build $(date -u +%Y-%m-%d) [skip ci]"
             git push
           fi
