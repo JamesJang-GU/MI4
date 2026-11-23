@@ -276,7 +276,24 @@ fleet_status = [
     {'status': 'Fully Cellular', 'ships': validate_range('fleet_fully_cellular', latest_alpha['meta']['global_ships'] * 0.9, min_val=6000, max_val=7700),
      'teu': validate_range('fleet_fully_cellular_teu', latest_alpha['meta']['global_teu'] * 0.9 // 1000, min_val=28000, max_val=38000)},
 ]
-lin.close()
+# Linerlytica fleet by status (monthly snapshot), with previous snapshot for change
+LIN_ORDER = ['Active Ships', 'Ships at port', 'Ships at anchorage', 'Ships in shipyard', 'Inactive Ships']
+linerlytica_fleet = None
+if lin:
+    dates = [r['snapshot_date'] for r in q(lin, "SELECT DISTINCT snapshot_date FROM fleet_snapshot ORDER BY snapshot_date DESC LIMIT 2")]
+    if dates:
+        snap = lambda d: {r['ship_status']: r for r in q(lin, "SELECT ship_status, ships, teu FROM fleet_snapshot WHERE snapshot_date=?", (d,))}
+        cur, prv = snap(dates[0]), (snap(dates[1]) if len(dates) > 1 else {})
+        rows = [{'status': s, 'ships': cur[s]['ships'], 'teu': cur[s]['teu'],
+                 'ships_pct': pct(cur[s]['ships'], prv[s]['ships'] if s in prv else None),
+                 'teu_pct': pct(cur[s]['teu'], prv[s]['teu'] if s in prv else None)}
+                for s in LIN_ORDER if s in cur]
+        linerlytica_fleet = {'asof': dates[0], 'prev_asof': dates[1] if len(dates) > 1 else None, 'rows': rows,
+                             'total_ships': sum(r['ships'] for r in rows), 'total_teu': sum(r['teu'] for r in rows)}
+    lin.close()
+am = latest_alpha['meta']
+alphaliner_global = {'asof': am.get('snapshot_date'), 'ships': am.get('global_ships'), 'teu': am.get('global_teu'),
+                     'top10_share': am.get('top10_share'), 'orderbook_teu': am.get('orderbook_teu')}
 
 # regional_trades: Alphaliner에서 직접 추출 또는 표준값 사용
 # 기준값 (Alphaliner TOP 100, 20 Nov 2026):
@@ -619,7 +636,7 @@ unified = {
             'ccfi_routes': ccfi_routes,
             'bdi_subindices': bdi_subindices,
             'tac_routes': tac_routes,
-            'fleet_status': fleet_status,
+            'fleet_status': fleet_status, 'linerlytica_fleet': linerlytica_fleet, 'alphaliner_global': alphaliner_global,
             'top_operators': top_operators,
             'forwarders': forwarders,
             'regional_trades': regional_trades,
