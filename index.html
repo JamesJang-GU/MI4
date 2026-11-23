@@ -4,18 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MI4 — Global Freight & Trade Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#000; --panel:#0b0b0b; --panel2:#101010; --line:#2b2b2b; --line2:#1c1c1c;
   --amber:#ffa500; --amber2:#ff8c00; --txt:#e6e6e6; --dim:#8f8f8f;
   --up:#ff4d4d; --down:#58a6ff; --flat:#9a9a9a;
   --green:#3fb950; --yellow:#d29922; --red:#f85149; --violet:#d2a8ff; --orange:#ff8c00;
-  --mono:Consolas,"Liberation Mono",Menlo,"Malgun Gothic","Apple SD Gothic Neo",monospace;
+  --font:"Noto Sans","Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font-family:var(--mono);font-size:11px}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font-family:var(--font);font-size:12px;font-variant-numeric:tabular-nums}
 body{overflow:hidden}
-button,input,select{font-family:var(--mono)}
+button,input,select{font-family:var(--font)}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-thumb{background:#333;border-radius:0}
 ::-webkit-scrollbar-track{background:#0a0a0a}
@@ -23,12 +26,12 @@ button,input,select{font-family:var(--mono)}
 /* ---------- top bar ---------- */
 .topbar{height:48px;display:flex;align-items:center;gap:10px;padding:0 12px;
   border-bottom:2px solid var(--amber);background:linear-gradient(180deg,#171200,#000);flex-wrap:wrap}
-.logo{color:#000;background:var(--amber);font-weight:700;font-size:13px;padding:2px 8px;letter-spacing:.1em}
-.brand{color:var(--amber);font-size:11px;letter-spacing:.12em;white-space:nowrap}
-.chip{border:1px solid var(--line);padding:1px 6px;font-size:9px;color:var(--dim);letter-spacing:.06em;white-space:nowrap}
+.logo{color:#000;background:var(--amber);font-weight:700;font-size:14px;padding:2px 8px;letter-spacing:.1em}
+.brand{color:var(--amber);font-size:12px;letter-spacing:.12em;white-space:nowrap}
+.chip{border:1px solid var(--line);padding:1px 6px;font-size:10.5px;color:var(--dim);letter-spacing:.06em;white-space:nowrap}
 .chip.live{color:var(--green);border-color:#1d4a2a}
 .chip.pub{color:var(--down);border-color:#1d3a5a}
-.topmeta{margin-left:auto;display:flex;align-items:center;gap:10px;color:var(--dim);font-size:9px;flex-wrap:wrap}
+.topmeta{margin-left:auto;display:flex;align-items:center;gap:10px;color:var(--dim);font-size:10.5px;flex-wrap:wrap}
 .topmeta b{color:var(--txt);font-weight:400}
 
 /* ---------- grid ---------- */
@@ -39,12 +42,12 @@ button,input,select{font-family:var(--mono)}
 .freight{grid-area:frt}.chokes{grid-area:choke}.energy{grid-area:energy}.macro{grid-area:macro}.disasters{grid-area:hz}
 .panel{background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;min-width:0;overflow:hidden;position:relative}
 .panel>header{display:flex;align-items:center;gap:7px;padding:5px 7px;border-bottom:1px solid var(--line2);background:var(--panel2);min-height:27px}
-.code{color:#000;background:var(--amber);font-weight:700;font-size:9px;padding:1px 5px;letter-spacing:.08em;white-space:nowrap}
+.code{color:#000;background:var(--amber);font-weight:700;font-size:10.5px;padding:1px 5px;letter-spacing:.08em;white-space:nowrap}
 .code.red{background:var(--red);color:#fff}.code.blue{background:var(--down);color:#000}
 .code.orange{background:var(--orange);color:#000}.code.violet{background:var(--violet);color:#000}.code.amber{background:var(--amber);color:#000}
 .code.green{background:var(--green);color:#000}
-.ttl{color:var(--amber);font-size:10px;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.meta{margin-left:auto;color:var(--dim);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ttl{color:var(--amber);font-size:11.5px;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{margin-left:auto;color:var(--dim);font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .panel .body{padding:6px;display:flex;flex-direction:column;gap:5px;flex:1;min-height:0;overflow:hidden}
 .scroll{overflow:auto;min-height:0}
 
@@ -53,13 +56,13 @@ button,input,select{font-family:var(--mono)}
 .gauge{width:132px;height:132px;display:block}
 .comp-bars{display:flex;flex-direction:column;gap:5px;min-width:0}
 .cbar{display:grid;grid-template-columns:1fr 34px;gap:3px 5px;align-items:center}
-.cbar .lab{color:var(--dim);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cbar .val{text-align:right;font-size:10px;color:var(--txt);font-variant-numeric:tabular-nums}
+.cbar .lab{color:var(--dim);font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cbar .val{text-align:right;font-size:11.5px;color:var(--txt);font-variant-numeric:tabular-nums}
 .cbar .track{grid-column:1/-1;height:3px;background:#1a1a1a;overflow:hidden}
 .cbar .fill{height:100%;background:var(--amber)}
 .bandline{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-top:2px}
-.bandline .b{font-size:10px;color:var(--amber);letter-spacing:.08em}
-.bandline .s{font-size:8px;color:var(--dim);text-align:right}
+.bandline .b{font-size:11.5px;color:var(--amber);letter-spacing:.08em}
+.bandline .s{font-size:9.5px;color:var(--dim);text-align:right}
 
 /* ---------- map ---------- */
 .map .body{padding:0;gap:0}
@@ -73,11 +76,11 @@ button,input,select{font-family:var(--mono)}
 .worldmap .dot{cursor:pointer}
 .worldmap .dot circle.core{stroke:#000;stroke-width:.6}
 .worldmap .dot:hover circle.core{stroke:#fff;stroke-width:1}
-.worldmap .dot text{font-size:12px;fill:#cfcfcf;paint-order:stroke;stroke:#000;stroke-width:2px;letter-spacing:.02em}
+.worldmap .dot text{font-size:13px;fill:#cfcfcf;paint-order:stroke;stroke:#000;stroke-width:2px;letter-spacing:.02em}
 .worldmap .pulse{fill:none;stroke-width:1;opacity:.6;animation:pulse 2.4s infinite}
 @keyframes pulse{0%{r:5;opacity:.7}70%{r:12;opacity:0}100%{r:12;opacity:0}}
 .map-legend{position:absolute;left:4px;bottom:3px;display:flex;gap:6px;align-items:center;
-  background:rgba(0,0,0,.72);border:1px solid var(--line2);padding:2px 6px;font-size:8px;color:var(--dim)}
+  background:rgba(0,0,0,.72);border:1px solid var(--line2);padding:2px 6px;font-size:9.5px;color:var(--dim)}
 .map-legend i{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:2px;vertical-align:middle}
 .worldmap .hz{cursor:pointer}
 .worldmap .hz path{stroke:#000;stroke-width:.6}
@@ -87,15 +90,15 @@ button,input,select{font-family:var(--mono)}
 .disasters .body{gap:4px}
 .hzstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
 .hzstat{background:var(--panel2);border:1px solid var(--line2);padding:2px 4px;min-width:0}
-.hzstat label{display:block;font-size:7.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hzstat b{font-size:12px;color:#fff}
+.hzstat label{display:block;font-size:9px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hzstat b{font-size:13px;color:#fff}
 .hzlist{display:flex;flex-direction:column;min-height:0;overflow:auto;flex:1 1 0}
 .hzrow{display:grid;grid-template-columns:5px 1fr auto;gap:5px;align-items:start;padding:3px 2px;border-bottom:1px solid #151515;cursor:pointer}
 .hzrow:hover{background:#141414}
 .hzrow .sev{width:5px;height:5px;border-radius:50%;margin-top:4px}
-.hzrow .t{font-size:9px;color:var(--txt);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hzrow .d{font-size:7.5px;color:var(--dim);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hzrow .k{font-size:7.5px;color:var(--dim);white-space:nowrap}
+.hzrow .t{font-size:10.5px;color:var(--txt);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hzrow .d{font-size:9px;color:var(--dim);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hzrow .k{font-size:9px;color:var(--dim);white-space:nowrap}
 .near{color:var(--amber)}
 .sev.Red{background:var(--red);box-shadow:0 0 5px var(--red)}.sev.Orange{background:var(--orange)}.sev.Green{background:var(--green)}.sev.quake{background:var(--violet)}
 
@@ -103,7 +106,7 @@ button,input,select{font-family:var(--mono)}
 .macro .body{gap:4px}
 .macro .cards{flex:0 0 auto;overflow:visible}
 .wbwrap{min-height:0;overflow:auto;flex:1 1 0}
-.wbwrap td,.wbwrap th{padding:2px 4px;font-size:8.5px}
+.wbwrap td,.wbwrap th{padding:2px 4px;font-size:10px}
 
 /* ---------- live embed ---------- */
 .livemap .body{padding:0}
@@ -111,21 +114,21 @@ button,input,select{font-family:var(--mono)}
 #livefocus{color:var(--amber);margin-right:6px}
 
 .card.pending{border-style:dashed;cursor:pointer}
-.card.pending .val{color:#555;font-size:10px;font-weight:400}
+.card.pending .val{color:#555;font-size:11.5px;font-weight:400}
 
 /* ---------- alerts ---------- */
 .alert{display:grid;grid-template-columns:5px 1fr;gap:6px;padding:4px 7px;border-bottom:1px solid #161616;cursor:pointer}
 .alert:hover{background:#141414}
 .alert .sev{width:5px;height:5px;border-radius:50%;margin-top:4px}
-.alert .t{font-size:9.5px;color:var(--txt);line-height:1.25}
-.alert .d{font-size:8px;color:var(--dim);line-height:1.3;margin-top:1px}
+.alert .t{font-size:11px;color:var(--txt);line-height:1.25}
+.alert .d{font-size:9.5px;color:var(--dim);line-height:1.3;margin-top:1px}
 .alert.critical .sev{background:var(--red);box-shadow:0 0 6px var(--red)}
 .alert.high .sev{background:var(--orange)}
 .alert.watch .sev{background:var(--yellow)}
 .alert.info .sev{background:var(--dim)}
 
 /* ---------- tables ---------- */
-table{width:100%;border-collapse:collapse;font-size:9px}
+table{width:100%;border-collapse:collapse;font-size:10.5px}
 th{position:sticky;top:0;background:var(--panel2);color:var(--dim);font-weight:400;text-align:left;
   padding:3px 5px;border-bottom:1px solid var(--line);white-space:nowrap;z-index:1}
 td{padding:3px 5px;border-bottom:1px solid #151515;white-space:nowrap}
@@ -134,10 +137,10 @@ tbody tr:hover{background:#151515}
 .scorebar{height:3px;background:#222;min-width:34px;overflow:hidden}
 .scorebar span{display:block;height:100%}
 .num{text-align:right;font-variant-numeric:tabular-nums}
-.badge{display:inline-block;padding:0 4px;font-size:8px;border:1px solid;line-height:1.5}
+.badge{display:inline-block;padding:0 4px;font-size:9.5px;border:1px solid;line-height:1.5}
 .badge.green{color:var(--green);border-color:#1d4a2a}.badge.yellow{color:var(--yellow);border-color:#4a3a10}
 .badge.red{color:var(--red);border-color:#4a1d1d}.badge.gray{color:var(--dim);border-color:var(--line)}
-.war{font-size:8px;text-transform:uppercase}
+.war{font-size:9.5px;text-transform:uppercase}
 .war.war_zone,.war.critical{color:var(--red)}.war.high{color:var(--orange)}
 .war.elevated{color:var(--yellow)}.war.normal{color:var(--dim)}
 
@@ -146,40 +149,40 @@ tbody tr:hover{background:#151515}
 .freight .body{display:grid;grid-template-rows:minmax(0,.85fr) minmax(0,1fr);gap:5px;padding:5px}
 .fx-index{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:5px;min-height:0}
 .fx-index .card{padding:4px 7px}
-.fx-index .card .val{font-size:17px}
-.fx-index .card .chg{font-size:9px}
+.fx-index .card .val{font-size:18px}
+.fx-index .card .chg{font-size:10.5px}
 .fx-index .card .spark{flex:1 1 auto;height:auto;min-height:16px}
 .fx-cap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px;min-height:0}
 .fxbox{background:var(--panel2);border:1px solid var(--line2);padding:4px 7px;min-width:0;min-height:0;display:flex;flex-direction:column;gap:4px;cursor:pointer;overflow:auto}
 .fxbox:hover{border-color:#4a3a10}
-.fxbox .hd{display:flex;justify-content:space-between;gap:6px;font-size:8px;color:var(--amber);letter-spacing:.08em;white-space:nowrap}
+.fxbox .hd{display:flex;justify-content:space-between;gap:6px;font-size:9.5px;color:var(--amber);letter-spacing:.08em;white-space:nowrap}
 .fxbox .hd span:last-child{color:#666}
 .fxfig{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.fxfig label{display:block;font-size:7.5px;color:var(--dim)}
-.fxfig b{display:block;font-size:14px;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fxsub{font-size:7.5px;color:var(--dim);letter-spacing:.06em;border-top:1px dashed #222;padding-top:3px}
-.fxrows div{display:flex;justify-content:space-between;gap:6px;font-size:9px;color:var(--txt);padding:1px 0}
+.fxfig label{display:block;font-size:9px;color:var(--dim)}
+.fxfig b{display:block;font-size:15px;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fxsub{font-size:9px;color:var(--dim);letter-spacing:.06em;border-top:1px dashed #222;padding-top:3px}
+.fxrows div{display:flex;justify-content:space-between;gap:6px;font-size:10.5px;color:var(--txt);padding:1px 0}
 .fxrows span:last-child{font-variant-numeric:tabular-nums;color:#fff}
-.lintab th{position:static;background:none;padding:1px 3px;font-size:7.5px}
-.lintab td{padding:2px 3px;font-size:9px}
+.lintab th{position:static;background:none;padding:1px 3px;font-size:9px}
+.lintab td{padding:2px 3px;font-size:10.5px}
 .lintab tr.tot td{color:var(--dim);border-bottom:0}
 .linbar{width:100%;min-width:30px;height:5px;background:#1a1a1a}
 .linbar span{display:block;height:100%;background:var(--red)}
 .cards3{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-.cards3 .card .val{font-size:12.5px}
+.cards3 .card .val{font-size:13px}
 .cards3 .card .spark{height:18px}
 .cards4{grid-template-columns:repeat(4,minmax(0,1fr))!important}
-.cards4 .card .val{font-size:11.5px}
+.cards4 .card .val{font-size:12.5px}
 .cards4 .card .spark{height:16px}
 .cards4 .card .asof{display:none}
 .card{background:var(--panel2);border:1px solid var(--line2);padding:4px 5px;cursor:pointer;min-width:0;display:flex;flex-direction:column;gap:1px}
 .card:hover{border-color:#4a3a10;background:#141008}
-.card .lab{color:var(--dim);font-size:8.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card .val{color:#fff;font-size:14px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card .val em{font-style:normal;font-size:8px;color:var(--dim);margin-left:2px;font-weight:400}
-.card .chg{font-size:8px;font-variant-numeric:tabular-nums}
+.card .lab{color:var(--dim);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .val{color:#fff;font-size:15px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .val em{font-style:normal;font-size:9.5px;color:var(--dim);margin-left:2px;font-weight:400}
+.card .chg{font-size:9.5px;font-variant-numeric:tabular-nums}
 .card .spark{height:22px;min-height:18px}
-.card .asof{color:#666;font-size:7.5px;text-align:right}
+.card .asof{color:#666;font-size:9px;text-align:right}
 .up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--flat)}
 .spark svg{width:100%;height:100%;display:block}
 .spark{position:relative}
@@ -189,14 +192,14 @@ tbody tr:hover{background:#151515}
 .country-list{display:flex;flex-direction:column;gap:2px;min-height:0;overflow:auto;flex:1 1 0}
 .crow{display:grid;grid-template-columns:26px 1fr 42px;gap:5px;align-items:center;padding:2px 3px;cursor:pointer;border-bottom:1px solid #141414}
 .crow:hover{background:#141414}
-.cc{font-size:8px;color:#000;background:var(--dim);text-align:center;font-weight:700}
-.crow .nm{font-size:9px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.crow .sc{text-align:right;font-size:9px;font-variant-numeric:tabular-nums}
+.cc{font-size:9.5px;color:#000;background:var(--dim);text-align:center;font-weight:700}
+.crow .nm{font-size:10.5px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow .sc{text-align:right;font-size:10.5px;font-variant-numeric:tabular-nums}
 .crow .track{grid-column:2/-1;height:2px;background:#1a1a1a;margin-top:-1px}
 .crow .fill{height:100%;background:var(--down)}
 .crow.low .fill{background:var(--red)}
-.sect{font-size:8px;color:var(--dim);letter-spacing:.08em;margin:2px 0 1px;display:flex;justify-content:space-between}
-.linkbtn{background:none;border:1px solid var(--line);color:var(--amber);font-size:8px;padding:1px 5px;cursor:pointer}
+.sect{font-size:9.5px;color:var(--dim);letter-spacing:.08em;margin:2px 0 1px;display:flex;justify-content:space-between}
+.linkbtn{background:none;border:1px solid var(--line);color:var(--amber);font-size:9.5px;padding:1px 5px;cursor:pointer}
 .linkbtn:hover{background:var(--amber);color:#000}
 
 /* ---------- chain ---------- */
@@ -204,14 +207,14 @@ tbody tr:hover{background:#151515}
 .chain-grid{display:grid;grid-template-columns:1fr 26px 1fr 26px 1fr 26px 1fr 26px 1fr;gap:2px;align-items:stretch;flex:1;min-height:0;width:100%}
 .cnode{background:var(--panel2);border:1px solid var(--line2);padding:4px 5px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0}
 .cnode:hover{border-color:var(--amber)}
-.cnode .cl{font-size:8px;color:var(--dim);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cnode .cv{font-size:15px;font-weight:700;color:#fff;line-height:1}
+.cnode .cl{font-size:9.5px;color:var(--dim);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cnode .cv{font-size:16px;font-weight:700;color:#fff;line-height:1}
 .cnode .ct{height:3px;background:#222;margin-top:2px}
 .cnode .ct span{display:block;height:100%}
-.carrow{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#555;font-size:8px}
-.carrow b{color:var(--amber);font-weight:400;font-size:11px;line-height:1}
-.carrow small{font-size:6.5px;color:#666;text-align:center;line-height:1.1;max-width:26px}
-.chainnote{font-size:8px;color:var(--dim);line-height:1.35;border-top:1px dashed #222;padding-top:3px}
+.carrow{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#555;font-size:9.5px}
+.carrow b{color:var(--amber);font-weight:400;font-size:12px;line-height:1}
+.carrow small{font-size:8px;color:#666;text-align:center;line-height:1.1;max-width:26px}
+.chainnote{font-size:9.5px;color:var(--dim);line-height:1.35;border-top:1px dashed #222;padding-top:3px}
 .chainnote b{color:var(--amber);font-weight:400}
 
 /* ---------- insights ---------- */
@@ -219,7 +222,7 @@ tbody tr:hover{background:#151515}
 .bullet{display:grid;grid-template-columns:7px 1fr;gap:7px;padding:2px 3px;cursor:pointer}
 .bullet:hover{background:#141414}
 .bullet .d{width:6px;height:6px;border-radius:50%;margin-top:5px}
-.bullet .t{font-size:10.5px;line-height:1.5;color:var(--txt)}
+.bullet .t{font-size:11.5px;line-height:1.5;color:var(--txt)}
 .bullet .t b{color:#fff}
 
 /* ---------- drawer ---------- */
@@ -229,39 +232,39 @@ tbody tr:hover{background:#151515}
 .drawer.open{transform:translateX(0)}
 .drawer-head{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#151000,#080808)}
 .drawer-head .code{margin-top:2px}
-.drawer-head h2{margin:0;font-size:15px;color:#fff;font-weight:700;line-height:1.2}
-.drawer-head .sub{font-size:9px;color:var(--dim);margin-top:2px}
-.drawer-close{margin-left:auto;background:none;border:1px solid var(--line);color:var(--dim);font-size:12px;
+.drawer-head h2{margin:0;font-size:16px;color:#fff;font-weight:700;line-height:1.2}
+.drawer-head .sub{font-size:10.5px;color:var(--dim);margin-top:2px}
+.drawer-close{margin-left:auto;background:none;border:1px solid var(--line);color:var(--dim);font-size:13px;
   width:24px;height:24px;cursor:pointer;line-height:1}
 .drawer-close:hover{background:var(--red);color:#fff;border-color:var(--red)}
 .drawer-dl{margin-left:auto;display:flex;gap:4px}
 .drawer-dl[hidden]{display:none}
 .drawer-dl:not([hidden])+.drawer-close{margin-left:6px}
-.dlbtn{color:var(--amber);border:1px solid var(--amber);background:none;font-size:9px;padding:0 7px;height:24px;cursor:pointer;letter-spacing:.06em}
+.dlbtn{color:var(--amber);border:1px solid var(--amber);background:none;font-size:10.5px;padding:0 7px;height:24px;cursor:pointer;letter-spacing:.06em}
 .dlbtn:hover{background:var(--amber);color:#000}
 .drawer-body{padding:10px 12px 30px;overflow:auto;flex:1}
 .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:55;opacity:0;pointer-events:none;transition:opacity .18s}
 .drawer-backdrop.open{opacity:1;pointer-events:auto}
-.dsec{margin:10px 0 4px;font-size:9px;color:var(--amber);letter-spacing:.1em;border-bottom:1px dashed #2a2a2a;padding-bottom:3px}
+.dsec{margin:10px 0 4px;font-size:10.5px;color:var(--amber);letter-spacing:.1em;border-bottom:1px dashed #2a2a2a;padding-bottom:3px}
 .dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
 .dstat{background:var(--panel2);border:1px solid var(--line2);padding:5px 6px;min-width:0}
-.dstat label{display:block;font-size:8px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dstat b{display:block;font-size:12px;color:#fff;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dstat small{font-size:8px;color:var(--dim)}
+.dstat label{display:block;font-size:9.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dstat b{display:block;font-size:13px;color:#fff;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dstat small{font-size:9.5px;color:var(--dim)}
 .dlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
-.dlist li{font-size:9px;color:var(--txt);padding:2px 0;border-bottom:1px solid #141414;display:flex;justify-content:space-between;gap:8px}
+.dlist li{font-size:10.5px;color:var(--txt);padding:2px 0;border-bottom:1px solid #141414;display:flex;justify-content:space-between;gap:8px}
 .dlist li span:last-child{color:var(--dim);text-align:right}
-.dtable td,.dtable th{font-size:9px}
-.dsource{font-size:8px;color:#666;line-height:1.4;margin-top:12px;border-top:1px solid var(--line2);padding-top:6px}
+.dtable td,.dtable th{font-size:10.5px}
+.dsource{font-size:9.5px;color:#666;line-height:1.4;margin-top:12px;border-top:1px solid var(--line2);padding-top:6px}
 .chart{width:100%;height:auto;display:block;background:#070707;border:1px solid var(--line2)}
 .chart-tip{position:fixed;z-index:100;background:#111;border:1px solid #3a3a3a;color:var(--txt);
-  font-size:9px;padding:3px 6px;pointer-events:none;opacity:0;transition:opacity .08s;line-height:1.35}
+  font-size:10.5px;padding:3px 6px;pointer-events:none;opacity:0;transition:opacity .08s;line-height:1.35}
 .chart-tip b{color:var(--amber);font-weight:400}
-.empty{color:#555;font-size:9px;padding:8px 0}
+.empty{color:#555;font-size:10.5px;padding:8px 0}
 .pillrow{display:flex;flex-wrap:wrap;gap:3px}
-.pill{border:1px solid var(--line);padding:1px 5px;font-size:8px;color:var(--dim);cursor:pointer}
+.pill{border:1px solid var(--line);padding:1px 5px;font-size:9.5px;color:var(--dim);cursor:pointer}
 .pill:hover{border-color:var(--amber);color:var(--amber)}
-.searchbox{width:100%;background:#0d0d0d;border:1px solid var(--line);color:var(--txt);font-size:10px;padding:5px 7px;outline:none}
+.searchbox{width:100%;background:#0d0d0d;border:1px solid var(--line);color:var(--txt);font-size:11.5px;padding:5px 7px;outline:none}
 .searchbox:focus{border-color:var(--amber)}
 .full-list{max-height:none}
 .full-list .crow{grid-template-columns:30px 1fr 50px}
@@ -416,9 +419,9 @@ function chartSVG(points, color, opts={}){
   const area=`${d} L${X(points.length-1).toFixed(1)},${h-pad.b} L${pad.l},${h-pad.b} Z`;
   const id='g'+(chartSeq++);
   const grid=[0,.5,1].map(f=>{const yy=pad.t+f*(h-pad.t-pad.b); const val=max-f*range;
-    return `<line x1="${pad.l}" y1="${yy.toFixed(1)}" x2="${w-pad.r}" y2="${yy.toFixed(1)}" stroke="#1b1b1b"/><text x="${pad.l-4}" y="${(yy+3).toFixed(1)}" text-anchor="end" fill="#777" font-size="8">${fmt(val,0)}</text>`}).join('');
+    return `<line x1="${pad.l}" y1="${yy.toFixed(1)}" x2="${w-pad.r}" y2="${yy.toFixed(1)}" stroke="#1b1b1b"/><text x="${pad.l-4}" y="${(yy+3).toFixed(1)}" text-anchor="end" fill="#777" font-size="9.5">${fmt(val,0)}</text>`}).join('');
   const idxs=[0,Math.floor((points.length-1)/2),points.length-1];
-  const xlabels=idxs.map(i=>`<text x="${X(i).toFixed(1)}" y="${h-6}" text-anchor="${i===0?'start':i===points.length-1?'end':'middle'}" fill="#777" font-size="8">${esc(points[i][0])}</text>`).join('');
+  const xlabels=idxs.map(i=>`<text x="${X(i).toFixed(1)}" y="${h-6}" text-anchor="${i===0?'start':i===points.length-1?'end':'middle'}" fill="#777" font-size="9.5">${esc(points[i][0])}</text>`).join('');
   const last=points[points.length-1];
   return `<svg viewBox="0 0 ${w} ${h}" class="chart" data-chart="${id}" data-points='${JSON.stringify(points)}' data-color="${color}" data-pad='${JSON.stringify(pad)}' data-w="${w}" data-h="${h}" data-unit="${esc(opts.unit||'')}">
     <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".22"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
@@ -584,9 +587,9 @@ function renderComposite(){
     <svg class="gauge" viewBox="0 0 140 140">
       <circle cx="70" cy="70" r="${r}" fill="none" stroke="#1c1c1c" stroke-width="9"/>
       <circle cx="70" cy="70" r="${r}" fill="none" stroke="${color}" stroke-width="9" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 70 70)"/>
-      <text x="70" y="68" text-anchor="middle" fill="#fff" font-size="28" font-weight="700">${c.score.toFixed(1)}</text>
-      <text x="70" y="84" text-anchor="middle" fill="${color}" font-size="8" letter-spacing="1">${esc(c.band.toUpperCase())}</text>
-      <text x="70" y="99" text-anchor="middle" fill="#777" font-size="6.5">SUPPLY CHAIN STRESS</text>
+      <text x="70" y="68" text-anchor="middle" fill="#fff" font-size="29.5" font-weight="700">${c.score.toFixed(1)}</text>
+      <text x="70" y="84" text-anchor="middle" fill="${color}" font-size="9.5" letter-spacing="1">${esc(c.band.toUpperCase())}</text>
+      <text x="70" y="99" text-anchor="middle" fill="#777" font-size="8">SUPPLY CHAIN STRESS</text>
     </svg>
     <div class="comp-bars">${bars}
       <div class="bandline"><span class="b">0.40 CHOKE · 0.25 FREIGHT · 0.20 ENERGY · 0.15 MACRO</span></div>
@@ -854,9 +857,9 @@ function chokepointDetail(c){
   const related=['scfi','bdi','tac'].map(metricById).filter(Boolean);
   return `
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-      <div style="font-size:34px;font-weight:700;color:${col};line-height:1">${c.score}<span style="font-size:12px;color:#777">/100</span></div>
+      <div style="font-size:36px;font-weight:700;color:${col};line-height:1">${c.score}<span style="font-size:13px;color:#777">/100</span></div>
       <div><span class="badge ${c.status}">${esc(c.status)}</span> <span class="war ${esc(c.war_risk_tier)}">${esc(c.war_risk_tier)}</span>
-      <div style="font-size:8px;color:#777;margin-top:2px">WorldMonitor composite disruption score</div></div>
+      <div style="font-size:9.5px;color:#777;margin-top:2px">WorldMonitor composite disruption score</div></div>
     </div>
     <div class="dgrid">
       <div class="dstat"><label>Congestion</label><b>${esc(c.congestion_level||'-')}</b></div>
@@ -873,7 +876,7 @@ function chokepointDetail(c){
     <div class="dsec">EXPOSED ROUTES</div>
     <ul class="dlist">${(c.routes||[]).map(r=>`<li><span>${esc(r)}</span></li>`).join('')||'<li><span>-</span></li>'}</ul>
     <div class="dsec">BYPASS / MITIGATION</div>
-    <div style="font-size:9px;color:var(--txt);line-height:1.4">${esc(c.bypass||'No published bypass.')}</div>
+    <div style="font-size:10.5px;color:var(--txt);line-height:1.4">${esc(c.bypass||'No published bypass.')}</div>
     <div class="dsec">RELATED FREIGHT SIGNALS</div>
     <div class="dgrid">${related.map(m=>`<div class="dstat" data-entity="metric" data-id="${m.id}" style="cursor:pointer"><label>${esc(m.label)}</label><b>${fmt(m.value)}<small> ${esc(m.unit)}</small></b><small class="${cls(m.pct)}">${arrow(m.pct)} ${pct(m.pct)}</small></div>`).join('')}</div>
     <div class="dsource">Source: WorldMonitor Chokepoint Status (open data, CC-BY-4.0). ${esc(U.chokepoints.attribution)}<br>Snapshot ${esc(U.chokepoints.snapshot_date)} · generated ${esc(U.chokepoints.generated_at)}${U.chokepoints.upstream_unavailable?' · upstream unavailable':''}</div>`;
@@ -893,8 +896,8 @@ function metricDetail(m){
   if(m.id.startsWith('vlsfo')) extra=tableHTML('VLSFO PORTS', ['Port','$/ton','%'], U.energy.metrics.filter(x=>x.id.startsWith('vlsfo')).map(x=>[x.label,fmt(x.value),pct(x.pct)]));
   return `
     <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
-      <div style="font-size:28px;font-weight:700;color:#fff;line-height:1">${fmt(m.value)}<span style="font-size:11px;color:#777"> ${esc(m.unit)}</span></div>
-      <div class="${cls(m.pct)}" style="font-size:11px">${arrow(m.pct)} ${pct(m.pct)}</div>
+      <div style="font-size:29.5px;font-weight:700;color:#fff;line-height:1">${fmt(m.value)}<span style="font-size:12px;color:#777"> ${esc(m.unit)}</span></div>
+      <div class="${cls(m.pct)}" style="font-size:12px">${arrow(m.pct)} ${pct(m.pct)}</div>
     </div>
     <div class="dgrid">
       <div class="dstat"><label>Previous</label><b>${fmt(m.prev)}</b></div>
@@ -917,13 +920,13 @@ function countryDetail(c){
   const avg=c.avg;
   return `
     <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
-      <div style="font-size:30px;font-weight:700;color:#fff;line-height:1">${avg!=null?avg.toFixed(1):'-'}<span style="font-size:11px;color:#777">/100</span></div>
-      <div style="font-size:9px;color:#777">5-factor resilience average</div>
+      <div style="font-size:32px;font-weight:700;color:#fff;line-height:1">${avg!=null?avg.toFixed(1):'-'}<span style="font-size:12px;color:#777">/100</span></div>
+      <div style="font-size:10.5px;color:#777">5-factor resilience average</div>
     </div>
     <div class="dsec">PILLARS</div>
     ${pillars.map(([k,label])=>{
       const v=c.pillars[k];
-      return `<div style="margin:5px 0"><div style="display:flex;justify-content:space-between;font-size:9px"><span>${label}</span><span style="color:${v==null?'#666':'#fff'}">${v!=null?v.toFixed(1):'-'}</span></div><div class="scorebar" style="height:4px"><span style="width:${v||0}%;background:${v==null?'#333':v>=70?'#3fb950':v>=40?'#d29922':'#f85149'}"></span></div></div>`;
+      return `<div style="margin:5px 0"><div style="display:flex;justify-content:space-between;font-size:10.5px"><span>${label}</span><span style="color:${v==null?'#666':'#fff'}">${v!=null?v.toFixed(1):'-'}</span></div><div class="scorebar" style="height:4px"><span style="width:${v||0}%;background:${v==null?'#333':v>=70?'#3fb950':v>=40?'#d29922':'#f85149'}"></span></div></div>`;
     }).join('')}
     <div class="dsec">BANDS</div>
     <ul class="dlist">${pillars.map(([k,label])=>`<li><span>${label}</span><span>${esc(c.bands[k]||'-')}</span></li>`).join('')}</ul>
@@ -956,7 +959,7 @@ function filterCountries(q){
 
 function alertDetail(a){
   const ent=a.entity||{};
-  return `<div style="font-size:11px;line-height:1.5;color:var(--txt)">${esc(a.detail)}</div>
+  return `<div style="font-size:12px;line-height:1.5;color:var(--txt)">${esc(a.detail)}</div>
     <div class="dsec">SEVERITY</div>
     <div class="dgrid"><div class="dstat"><label>Level</label><b style="color:${a.severity==='critical'?'var(--red)':a.severity==='high'?'var(--orange)':'var(--yellow)'}">${esc(a.severity)}</b></div>
     <div class="dstat"><label>Category</label><b>${esc(a.category)}</b></div>
@@ -969,8 +972,8 @@ function alertDetail(a){
 function chainDetail(n){
   const map={chokepoint:'composite',freight:'freight',energy:'energy',macro:'macro',consumer:'macro'};
   const target=map[n.id]||'composite';
-  return `<div style="font-size:30px;font-weight:700;color:#fff;line-height:1">${n.score.toFixed(1)}<span style="font-size:11px;color:#777">/100</span></div>
-    <div style="font-size:9px;color:#777;margin-top:2px">Transmission node score</div>
+  return `<div style="font-size:32px;font-weight:700;color:#fff;line-height:1">${n.score.toFixed(1)}<span style="font-size:12px;color:#777">/100</span></div>
+    <div style="font-size:10.5px;color:#777;margin-top:2px">Transmission node score</div>
     <div class="dsec">CONNECTED LINKS</div>
     <ul class="dlist">${U.chain.links.filter(l=>l.from===n.id||l.to===n.id).map(l=>`<li><span>${esc(l.from)} → ${esc(l.to)}</span><span>${esc(l.label)} · w ${l.weight}</span></li>`).join('')}</ul>
     <div class="dsec">OPEN DETAIL</div>
@@ -979,9 +982,9 @@ function chainDetail(n){
 }
 
 function compositeDetail(){
-  return `<div style="font-size:11px;line-height:1.5;color:var(--txt)">복합 스트레스 지수는 4개 pillar의 가중 평균입니다. 각 pillar는 1년 z-score와 현재 수준을 조합해 0–100으로 정규화합니다.</div>
+  return `<div style="font-size:12px;line-height:1.5;color:var(--txt)">복합 스트레스 지수는 4개 pillar의 가중 평균입니다. 각 pillar는 1년 z-score와 현재 수준을 조합해 0–100으로 정규화합니다.</div>
     <div class="dsec">COMPONENTS</div>
-    ${U.composite.components.map(c=>`<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:9px"><span>${esc(c.label)}</span><span>${c.score.toFixed(1)} · w ${c.weight}</span></div><div class="scorebar" style="height:5px"><span style="width:${c.score}%;background:${c.id==='chokepoint'?'#f85149':c.id==='freight'?'#ffa500':c.id==='energy'?'#ff8c00':'#d2a8ff'}"></span></div><div style="font-size:8px;color:#777;margin-top:2px">${esc(c.summary)}</div></div>`).join('')}
+    ${U.composite.components.map(c=>`<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:10.5px"><span>${esc(c.label)}</span><span>${c.score.toFixed(1)} · w ${c.weight}</span></div><div class="scorebar" style="height:5px"><span style="width:${c.score}%;background:${c.id==='chokepoint'?'#f85149':c.id==='freight'?'#ffa500':c.id==='energy'?'#ff8c00':'#d2a8ff'}"></span></div><div style="font-size:9.5px;color:#777;margin-top:2px">${esc(c.summary)}</div></div>`).join('')}
     <div class="dsec">METHODOLOGY</div>
     <ul class="dlist">${Object.entries(U.meta.methodology).map(([k,v])=>`<li><span>${esc(k)}</span><span>${esc(v)}</span></li>`).join('')}</ul>
     <div class="dsec">TOP SIGNALS</div>
@@ -1019,18 +1022,18 @@ function disasterDetail(e){
       <div class="dstat"><label>Location</label><b>${e.lat!=null?fmt(e.lat,1)+', '+fmt(e.lon,1):'-'}</b></div>
     </div>
     <div class="dsec">SEVERITY</div>
-    <div style="font-size:10px;line-height:1.5">${esc(e.severity||'-')}</div>
+    <div style="font-size:11.5px;line-height:1.5">${esc(e.severity||'-')}</div>
     <div class="dsec">AFFECTED</div>
-    <div style="font-size:9px;line-height:1.5;color:var(--txt)">${esc(e.country||'-')}</div>
+    <div style="font-size:10.5px;line-height:1.5;color:var(--txt)">${esc(e.country||'-')}</div>
     ${nearBlock(e.near)}
     <div class="dsec">REPORT</div>
-    <div style="font-size:9px">${linkOut(e.url,'GDACS event report')||'-'}</div>
+    <div style="font-size:10.5px">${linkOut(e.url,'GDACS event report')||'-'}</div>
     <div class="dsource">Source: GDACS — Global Disaster Alert and Coordination System (European Commission JRC / UN OCHA). Fetched ${esc(DZ.gdacs&&DZ.gdacs.fetched_at||'-')}.</div>`;
 }
 function quakeDetail(q){
   return `<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
-      <div style="font-size:30px;font-weight:700;color:${HZ.quake};line-height:1">M${fmt(q.mag,1)}</div>
-      <div style="font-size:9px;color:#777">${esc((q.time||'').replace('T',' ').replace('Z',' UTC'))}</div>
+      <div style="font-size:32px;font-weight:700;color:${HZ.quake};line-height:1">M${fmt(q.mag,1)}</div>
+      <div style="font-size:10.5px;color:#777">${esc((q.time||'').replace('T',' ').replace('Z',' UTC'))}</div>
     </div>
     <div class="dgrid">
       <div class="dstat"><label>Depth</label><b>${fmt(q.depth_km,0)} km</b></div>
@@ -1039,7 +1042,7 @@ function quakeDetail(q){
     </div>
     ${nearBlock(q.near)}
     <div class="dsec">EVENT PAGE</div>
-    <div style="font-size:9px">${linkOut(q.url,'USGS event page')||'-'}</div>
+    <div style="font-size:10.5px">${linkOut(q.url,'USGS event page')||'-'}</div>
     <div class="dsource">Source: USGS Earthquake Hazards Program (U.S. public domain). M4.5+ past 7 days. Fetched ${esc(DZ.earthquakes&&DZ.earthquakes.fetched_at||'-')}.</div>`;
 }
 function disasterListDetail(){
@@ -1060,9 +1063,9 @@ function manualHelpDetail(id){
   const sample=id==='bdi'
     ? 'date,series,value\n2026-11-20,COMPOSITE,2901\n2026-11-20,BCI,4120\n2026-11-20,BPI,2350'
     : 'date,series,value\n2026-11-20,COMPOSITE,1234.56\n2026-11-20,Europe,1500\n2026-11-20,US West Coast,2100';
-  return `<div style="font-size:10px;line-height:1.6">아직 <b>${esc(MANUAL_LABEL[id]||id)}</b> 자료가 없습니다. 아래 형식의 CSV를 <code>data/manual/${esc(id)}.csv</code>로 넣으면 다음 빌드부터 이 카드에 표시됩니다.</div>
+  return `<div style="font-size:11.5px;line-height:1.6">아직 <b>${esc(MANUAL_LABEL[id]||id)}</b> 자료가 없습니다. 아래 형식의 CSV를 <code>data/manual/${esc(id)}.csv</code>로 넣으면 다음 빌드부터 이 카드에 표시됩니다.</div>
     <div class="dsec">FORMAT (UTF-8 CSV)</div>
-    <pre style="font-size:9px;background:#0d0d0d;border:1px solid var(--line);padding:6px;white-space:pre-wrap">${esc(sample)}</pre>
+    <pre style="font-size:10.5px;background:#0d0d0d;border:1px solid var(--line);padding:6px;white-space:pre-wrap">${esc(sample)}</pre>
     <ul class="dlist">
       <li><span>date</span><span>YYYY-MM-DD</span></li>
       <li><span>series</span><span>COMPOSITE = 종합지수, 그 외 = 항로/서브지수</span></li>
