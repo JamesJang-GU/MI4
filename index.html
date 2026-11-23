@@ -107,7 +107,8 @@ button,input,select{font-family:var(--mono)}
 
 /* ---------- live embed ---------- */
 .livemap .body{padding:0}
-.livemap iframe{width:100%;height:100%;border:0;display:block;background:#050505}
+.livemap iframe{flex:1 1 auto;width:100%;height:100%;min-height:0;border:0;display:block;background:#050505}
+#livefocus{color:var(--amber);margin-right:6px}
 
 .card.pending{border-style:dashed;cursor:pointer}
 .card.pending .val{color:#555;font-size:10px;font-weight:400}
@@ -315,8 +316,8 @@ tbody tr:hover{background:#151515}
   </section>
 
   <section class="panel livemap">
-    <header><span class="code red">CONFLICT</span><span class="ttl">CONFLICT · QUAKE · WEATHER</span><span class="meta"><a href="https://www.worldmonitor.app/" target="_blank" rel="noopener" style="color:inherit">POWERED BY WORLD MONITOR ↗</a></span></header>
-    <div class="body"><iframe src="https://www.worldmonitor.app/embed?layers=conflicts,earthquakes,weather&amp;center=20,60&amp;zoom=1&amp;theme=dark&amp;variant=full" title="World Monitor live map" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+    <header><span class="code red">CONFLICT</span><span class="ttl">CONFLICT · QUAKE · WEATHER</span><span class="meta"><span id="livefocus"></span><a href="https://www.worldmonitor.app/" target="_blank" rel="noopener" style="color:inherit">POWERED BY WORLD MONITOR ↗</a></span></header>
+    <div class="body"><iframe id="liveframe" title="World Monitor live map" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
   </section>
 
   <section class="panel freight">
@@ -537,6 +538,18 @@ function renderComposite(){
 }
 
 function renderMap(){ $('#map').innerHTML=mapSVG(); }
+
+// Point the WorldMonitor embed at the most severe spot: top chokepoint, unless a GDACS Red/Orange or M7+ event outranks it.
+function renderLiveMap(){
+  const c=[...U.chokepoints.items].sort((a,b)=>b.score-a.score).map(x=>({name:x.name,lat:x.lat,lon:x.lon,score:x.score}));
+  gdacsItems().filter(e=>e.current&&e.lat!=null&&(e.alert==='Red'||e.alert==='Orange'))
+    .forEach(e=>c.push({name:e.name,lat:e.lat,lon:e.lon,score:e.alert==='Red'?85:60}));
+  quakeItems().filter(q=>q.lat!=null&&q.mag>=7).forEach(q=>c.push({name:'M'+fmt(q.mag,1)+' '+q.place,lat:q.lat,lon:q.lon,score:40+q.mag*5}));
+  const f=c.sort((a,b)=>b.score-a.score)[0]||{name:'',lat:20,lon:60};
+  const zoom=f.name?4:1;
+  $('#liveframe').src=`https://www.worldmonitor.app/embed?layers=conflicts,earthquakes,weather&center=${f.lat.toFixed(2)},${f.lon.toFixed(2)}&zoom=${zoom}&theme=dark&variant=full`;
+  $('#livefocus').textContent=f.name?'FOCUS · '+f.name.toUpperCase():'';
+}
 
 function renderAlerts(){
   const a=U.composite.alerts;
@@ -1011,7 +1024,7 @@ function boot(){
   $('#built').textContent=U.meta.generated_at;
   $('#cpchip').textContent=U.chokepoints.items.length+' CHOKEPOINTS';
   $('#ctrychip').textContent=U.countries.items.filter(x=>x.avg!=null).length+' COUNTRIES';
-  renderComposite(); renderMap(); renderAlerts(); renderChoketable(); renderFreight(); renderDisasters(); renderEnergy(); renderMacro(); renderInsights();
+  renderComposite(); renderMap(); renderLiveMap(); renderAlerts(); renderChoketable(); renderFreight(); renderDisasters(); renderEnergy(); renderMacro(); renderInsights();
   attachChartHover(document);
   clock(); setInterval(clock,1000);
 }

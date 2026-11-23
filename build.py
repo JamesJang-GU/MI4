@@ -210,7 +210,15 @@ for mid, label in [('active_ships', 'Active Ships'), ('top100_teu', 'Top100 선�
     x = metric_id('alphaliner', label, mid, 'freight', source='MI2 · Alphaliner')
     if x: freight_metrics.append(x)
 x = metric_id('air', 'TAC 종합', 'tac', 'freight', source='MI2 · TAC Index')
-if x: freight_metrics.append(x)
+if x:
+    # summary.json carries no TAC history — use the monthly composite from air.db (last 12 months, matching the 1-year window used for z-scores)
+    air = connect('air')
+    if air and not x['series']:
+        pts = [[r['data_date'][:7], r2(r['overall_index'])] for r in
+               q(air, "SELECT data_date, overall_index FROM tac_master WHERE overall_index IS NOT NULL ORDER BY data_date")]
+        x['series'] = pts[-13:]
+    if air: air.close()
+    freight_metrics.append(x)
 
 energy_metrics = []
 for mid, label in [('brent', 'Brent'), ('wti', 'WTI'), ('dubai', 'Dubai')]:
