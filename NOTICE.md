@@ -21,7 +21,23 @@
 - Source: https://api.worldmonitor.app/api/scorecard/v1/list-five-factor-scorecards
 - Public endpoint, no key. Pillars: food, energy, demographics, technology, defense.
 
-## WorldMonitor API (optional live mode)
-- Source: https://api.worldmonitor.app
-- Requires `WORLDMONITOR_API_KEY`. Key-gated endpoints: shipping rates, commodity quotes, energy prices, chokepoint history/bypass, country chokepoint exposure, macro signals, world CPI, FRED series.
-- See https://www.worldmonitor.app/pricing and https://www.worldmonitor.app/docs/api-reference.
+## WorldMonitor — Embed map (free)
+- Source: https://www.worldmonitor.app/embed (iframe, layers: conflicts, earthquakes, weather)
+- Free embed; the visible "Powered by World Monitor" link in the panel header must be kept.
+- Paid WorldMonitor API tiers (API Starter and above) are intentionally not used.
+
+## GDACS — Global Disaster Alert and Coordination System
+- Source: https://www.gdacs.org/ (API: https://www.gdacs.org/gdacsapi/)
+- Joint initiative of the European Commission Joint Research Centre and UN OCHA.
+- Attribution: "Source: GDACS (https://www.gdacs.org)".
+
+## USGS Earthquake Hazards Program
+- Source: https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
+- U.S. Government work, public domain. Courtesy of the U.S. Geological Survey.
+
+## World Bank Open Data
+- Source: https://data.worldbank.org/ (indicators NY.GDP.MKTP.KD.ZG, FP.CPI.TOTL.ZG, NE.TRD.GNFS.ZS)
+- License: CC BY 4.0. Attribution: "The World Bank: World Development Indicators".
+
+## User-supplied freight indices
+- `data/manual/scfi.csv`, `ccfi.csv`, `bdi.csv` are supplied by the repository owner. SCFI/CCFI (Shanghai Shipping Exchange) and BDI (Baltic Exchange) remain the property of their publishers; the supplier is responsible for redistribution rights.

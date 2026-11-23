@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: "0 16 * * *"
   workflow_dispatch:
+  # Rebuild as soon as SCFI/CCFI/BDI CSVs are uploaded.
+  push:
+    branches: [main]
+    paths: ["data/manual/**"]
 
 permissions:
   contents: write
@@ -37,8 +41,11 @@ jobs:
           cp ../MI2/alphaliner/detail.html mi2/alphaliner/detail.html
           sed -i 's|href="../index.html"|href="../../index.html"|g' mi2/sea/index.html mi2/air/detail.html mi2/linerlytica/detail.html mi2/alphaliner/detail.html
 
-      - name: Fetch WorldMonitor public data
-        run: python3 fetch_worldmonitor.py --public-only
+      - name: Fetch WorldMonitor free-tier data
+        run: python3 fetch_worldmonitor.py
+
+      - name: Fetch open data (USGS / GDACS / World Bank)
+        run: python3 fetch_open_data.py || echo "open data fetch failed; keeping previous files"
 
       - name: Build MI4 dashboard
         run: |

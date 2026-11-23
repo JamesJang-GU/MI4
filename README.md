@@ -1,32 +1,37 @@
 # MI4 — Global Freight & Trade Intelligence
 
-**MI4**는 MI2(해운·항공 운송 크롤러)와 WorldMonitor(글로벌 병목·거시·국가 회복력)를 **하나의 대시보드**로 통합한 차세대 프로젝트입니다.
+**MI4**는 MI2(해운·항공 운송 크롤러), WorldMonitor **무료 티어** 데이터, 키 없는 원천 공개데이터(USGS·GDACS·World Bank), 사용자 제공 운임 지수(SCFI/CCFI/BDI)를 **한 화면 대시보드**로 통합한 프로젝트입니다.
 
-> MI2는 데이터 수집 계층, MI4는 통합·표현 계층입니다. MI4는 MI2의 `summary.json`과 SQLite 스냅샷을 읽고, WorldMonitor 공개 데이터를 병합해 1화면 SCM 인텔리전스를 제공합니다.
+> WorldMonitor 유료 플랜(API Starter 이상)이 필요한 항목은 사용하지 않습니다. 서버 측 REST 호출·재배포가 무료로 허용되는 데이터만 씁니다.
 
-## 1. MI4 = MI2 + WorldMonitor
+## 1. 카테고리별 구성
 
-| 영역 | MI2 (데이터) | WorldMonitor (데이터) | MI4 (표현) |
+| 카테고리 | 데이터 | 소스 | 패널 |
 |---|---|---|---|
-| 해운 운임 | SCFI 18항로, BDI/BCI/BPI/BSI | Shipping rates (CCFI 등) | Freight 패널 |
-| 선대/역량 | Linerlytica, Alphaliner Top100 | — | Freight 패널 |
-| 포워더 | A&A Top 25 | — | Freight 패널 |
-| 항공 운임 | TAC Index 3항로 | Airport delays | Freight 패널 |
-| 유가 | Dubai/Brent/WTI, VLSFO 3항구 | Energy prices (EIA) | Energy 패널 |
-| 원자재 | — | Commodity quotes | Energy 패널 (live) |
-| 거시 | GSCPI, World GDP/CPI | Macro signals, World CPI, FRED | Macro 패널 |
-| 병목 | — | 13개 해상 쵸크포인트 | Map + Bottleneck board |
-| 국가 | — | 5-factor scorecard (196개국) | Resilience 패널 |
-| 통합 | — | — | Composite + Transmission chain + Insights |
+| 해상 병목 | 13개 쵸크포인트 점수·상태·통항량 | WorldMonitor open data (CC BY 4.0) | Map + CHOKE board |
+| 해운 운임 | SCFI / CCFI / BDI (+ 항로·서브지수) | **사용자 제공 CSV** (`data/manual/`), SCFI·BDI는 MI2 대체 | FREIGHT |
+| 선대/역량·항공 | Linerlytica, Alphaliner, 포워더, TAC | MI2 | FREIGHT |
+| 에너지 | Dubai/Brent/WTI, VLSFO 3항구 | MI2 | ENERGY |
+| 거시 | GSCPI, World GDP/CPI + 10개국 GDP 성장률·CPI·무역/GDP | MI2 + World Bank (CC BY 4.0) | ECONOMIC |
+| 자연재해 | 재난 경보(지진·태풍·홍수·화산·가뭄·산불), M4.5+ 지진 | GDACS, USGS | DISASTER + 지도 마커 |
+| 국가 회복력 | 5-factor scorecard (196개국) | WorldMonitor public endpoint | RESILIENCE |
+| 분쟁·기상 | 실시간 지도 (분쟁·지진·기상 레이어) | WorldMonitor 무료 embed | CONFLICT |
+| 통합 | 복합 스트레스, 전이 체인, 인사이트, 알림 | MI4 | SYS / FLOW / INSIGHT / ALERT |
+
+**제외 (WorldMonitor 유료)**: shipping rates, commodity quotes, energy prices, chokepoint history/bypass, country exposure, macro signals, world CPI, FRED, news/conflict API, `/api/bootstrap`.
 
 ## 2. 데이터 소스 & 라이선스
 
 | 소스 | 접근 | 라이선스 |
 |---|---|---|
 | MI2 `summary.json` + SQLite | 로컬 (`../MI2`) | © JamesJang-GU |
+| 사용자 제공 SCFI/CCFI/BDI | `data/manual/*.csv` | 제공자 |
 | WorldMonitor Chokepoint Status open data | `https://www.worldmonitor.app/data/v1/chokepoints/` | **CC-BY-4.0** |
 | WorldMonitor Five-Factor Scorecard | `https://api.worldmonitor.app/api/scorecard/v1/list-five-factor-scorecards` | WorldMonitor |
-| WorldMonitor API (선택) | `X-WorldMonitor-Key` | Pro/Enterprise key |
+| WorldMonitor embed map | `https://www.worldmonitor.app/embed` (iframe, 시간당 갱신) | 무료, attribution 링크 필수 |
+| GDACS 재난 경보 | `https://www.gdacs.org/gdacsapi/` | EC JRC / UN OCHA, attribution |
+| USGS 지진 | `https://earthquake.usgs.gov/earthquakes/feed/` | U.S. public domain |
+| World Bank Open Data | `https://api.worldbank.org/v2/` | **CC BY 4.0** |
 
 **Chokepoint attribution (필수):**
 > WorldMonitor (https://www.worldmonitor.app). Scores and statuses are computed by WorldMonitor from IMF PortWatch, NGA Maritime Safety Information, and AIS data via aisstream.io.
@@ -37,9 +42,10 @@
 
 ```bash
 # 1) 공개 데이터 갱신 (키 없이)
-python3 fetch_worldmonitor.py --public-only
+python3 fetch_worldmonitor.py
+python3 fetch_open_data.py
 
-# 2) 대시보드 생성 (MI2 DB + WorldMonitor)
+# 2) 대시보드 생성 (MI2 DB + WorldMonitor + open data + data/manual)
 python3 make_map.py
 python3 build.py
 
@@ -51,33 +57,28 @@ python3 -m http.server 8080
 
 또는 `standalone.html`을 직접 열기 (단일 파일, 외부 의존성 없음).
 
-### Live 모드 (선택)
+### SCFI / CCFI / BDI 제공
 
-```bash
-export WORLDMONITOR_API_KEY=wm_xxx
-python3 fetch_worldmonitor.py
-python3 build.py
-python3 make_standalone.py
-```
-
-Live 데이터: shipping rates, commodity quotes, energy prices, chokepoint history/bypass, country chokepoint exposure, macro signals, world CPI, FRED series. 헤더의 `MI4 LIVE` 칩 클릭 → 상세.
+`data/manual/scfi.csv`, `ccfi.csv`, `bdi.csv`를 `date,series,value` 형식으로 넣습니다 (`series=COMPOSITE`가 종합지수). 형식 상세: [`data/manual/README.md`](data/manual/README.md). 파일이 없으면 SCFI·BDI는 MI2 값, CCFI는 "데이터 대기" 카드로 표시됩니다.
 
 ## 4. 화면 구성
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ SYS 복합 스트레스 │ MAP 13개 쵸크포인트 │ ALERT signal feed                    │
-├──────────────────────────────────────────────┬───────────────────────────────┤
-│ CHOKE 병목 보드 (13행)                       │ FREIGHT & CAPACITY (7 cards)   │
-├───────────────────┬───────────────────┬──────┴───────────────────────────────┤
-│ ENERGY & BUNKER   │ GLOBAL ECONOMY    │ RESILIENCE (top/bottom 5 + 196)     │
-├───────────────────┴───────────────────┴──────────────────────────────────────┤
-│ TRANSMISSION CHAIN (chokepoint→freight→energy→macro→consumer) │ KEY INSIGHTS │
-└──────────────────────────────────────────────────────────────────────────────┘
+┌────────────┬──────────────────────────────────────┬────────────┐
+│ SYS 복합   │ MAP 쵸크포인트 + 재해 마커            │ ALERT      │
+├────────────┴──────┬──────────────────────┬────────┴────────────┤
+│ CHOKE 병목 보드   │ FREIGHT SCFI·CCFI·BDI│ DISASTER GDACS/USGS │
+├────────────┬──────┴─────┬────────────────┼─────────────────────┤
+│ ENERGY     │ ECONOMIC   │ RESILIENCE     │ CONFLICT (WM embed) │
+│            │ MI2 + WB   │                │                     │
+├────────────┴────────────┴───────┬────────┴─────────────────────┤
+│ TRANSMISSION CHAIN              │ KEY INSIGHTS                 │
+└─────────────────────────────────┴──────────────────────────────┘
 ```
 
 - **복합 스트레스 지수**: 0–100, `0.40*chokepoint + 0.25*freight + 0.20*energy + 0.15*macro`
-- **클릭**: 지도 노드, 병목 행, 지표 카드, 국가, 체인 노드, 인사이트, 알림 → 상세 drawer
+- **클릭**: 지도 노드, 병목 행, 지표 카드, 재해/지진, 국가, 체인 노드, 인사이트, 알림 → 상세 drawer
+- **병목 인근 재해**: 쵸크포인트 500km 이내 재해·지진은 `near` 표시 + 알림 등급 상향
 - **상세 drawer**: 시계열 차트(hover), 통계, 관련 표(SCFI 항로/BDI 서브/선대 상태/Top 오퍼레이터/포워더/VLSFO 항구), 관련 지표 pill, 출처
 - **국가 전체 196개**: `ALL 196 →` → 검색 가능한 전체 랭킹
 - **반응형**: 1440×900 1화면, <1250px 2열, <760px 1열
@@ -90,7 +91,8 @@ MI4/
 ├── standalone.html         # data.js 인라인 단일 파일
 ├── data.js                 # build.py 생성 (window.UNIFIED + window.WORLD_MAP)
 ├── build.py                # MI2 DB + WorldMonitor JSON → unified.json / data.js
-├── fetch_worldmonitor.py   # 공개 데이터 + 선택적 live API 수집
+├── fetch_worldmonitor.py   # WorldMonitor 무료 티어 데이터 수집
+├── fetch_open_data.py      # USGS / GDACS / World Bank 수집
 ├── make_map.py             # worldmonitor TopoJSON → SVG land path
 ├── make_standalone.py      # index.html + data.js → standalone.html
 ├── mi4.config.json         # 프로젝트 설정 (MI2/WorldMonitor 경로)
@@ -101,7 +103,10 @@ MI4/
 │   ├── chokepoints-*.json  # WorldMonitor 일별 스냅샷
 │   ├── chokepoints-latest.json
 │   ├── scorecard.json
-│   └── worldmonitor-live.json  # live 모드에서만 생성 (gitignore)
+│   ├── open-earthquakes.json   # USGS
+│   ├── open-disasters.json     # GDACS
+│   ├── open-worldbank.json     # World Bank
+│   └── manual/                 # 사용자 제공 SCFI/CCFI/BDI CSV
 ├── shot-main.png
 ├── shot-detail.png
 └── NOTICE.md
@@ -130,9 +135,8 @@ WorldMonitor open data (매일 06:23 UTC)                │
 ### 배포 옵션
 
 1. **정적(현재)**: GitHub Pages에 `index.html` + `data.js` + `standalone.html` 업로드. 서버 비용 0.
-2. **자동화**: GitHub Actions cron으로 `fetch_worldmonitor.py --public-only && make_map.py && build.py && make_standalone.py` 실행 후 커밋.
-3. **Live**: `WORLDMONITOR_API_KEY`를 GitHub Secret으로 추가. API 한도/비용 모니터링.
-4. **프론트 교체**: `data/unified.json` 스키마를 유지하면 React/Vue/Next.js로 이식 가능.
+2. **자동화**: GitHub Actions cron으로 `fetch_worldmonitor.py && fetch_open_data.py && build.py && make_standalone.py` 실행 후 커밋.
+3. **프론트 교체**: `data/unified.json` 스키마를 유지하면 React/Vue/Next.js로 이식 가능.
 
 ## 7. 복합 지수 계산식
 
@@ -184,28 +188,21 @@ git push -u origin main
 ### 4) Daily build workflow (이미 포함됨)
 `.github/workflows/mi4-daily.yml`
 - 매일 **01:00 KST** (`cron: "0 16 * * *"`)
-- MI2 repo clone → WorldMonitor 공개 데이터 fetch → `build.py` → `make_standalone.py` → commit/push
+- MI2 repo clone → WorldMonitor 무료 데이터 + USGS/GDACS/World Bank fetch → `build.py` → `make_standalone.py` → commit/push
+- `data/manual/**` push 시에도 즉시 실행, Actions 탭에서 수동 실행(`Run workflow`) 가능
 - MI2의 00:00 KST 크롤링이 끝난 뒤 실행되도록 01:00 KST로 설정
 - `data/world-map.json`은 커밋되어 있으므로 CI에서는 `make_map.py`를 실행하지 않음 (지도 갱신 시에만 로컬에서 실행 후 커밋)
 
-### 5) Live 모드 (선택)
-- GitHub Settings → Secrets and variables → Actions → New repository secret
-  - 이름: `WORLDMONITOR_API_KEY`
-  - 값: `wm_xxx`
-- `.github/workflows/mi4-daily.yml`의 fetch step을 `python3 fetch_worldmonitor.py --public-only` → `python3 fetch_worldmonitor.py`로 변경
-- `data/worldmonitor-live.json`은 `.gitignore`에 포함되어 커밋되지 않지만, `build.py`가 읽어 `data.js`에 live 데이터를 포함함
-- API 한도/비용 모니터링 필요
-
-### 6) 확인
+### 5) 확인
 - `https://jamesjang-gu.github.io/MI4/` 열기
-- 헤더 `MI4 CORE`, 10개 패널, 13개 지도 노드, 196개국 확인
+- 헤더 `MI4 CORE`, 12개 패널, 13개 지도 노드, 196개국 확인
 - 쵸크포인트/지표/국가 클릭 → 상세 drawer
 - Actions 탭에서 `mi4-daily` 실행 로그 확인
 
 ## 9. 한계 / 다음 단계
 
-- **원자재**: MI2에는 유가만 있어 금/구리/리튬 등은 WorldMonitor `list-commodity-quotes` (key)로 보강.
-- **뉴스/분쟁**: WorldMonitor news/conflict API는 key 필요. 현재는 수치형 지표 중심.
+- **원자재**: MI2에는 유가만 있음. 금/구리/리튬 등은 WorldMonitor 유료이므로 제외.
+- **뉴스/분쟁**: WorldMonitor news/conflict API는 유료. 분쟁은 무료 embed 지도로만 표시 (수치 미연동).
 - **상관분석**: 체인 가중치는 정성적. 실제 시계열 상관/회귀로 보정 가능.
 - **알림**: 임계치 초과 시 Slack/Teams/Telegram 웹훅 연동 가능.
 - **라이선스**: 데이터 라이선스는 `NOTICE.md` 참조. 코드 라이선스는 별도 지정 필요.

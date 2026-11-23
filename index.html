@@ -76,6 +76,38 @@ button,input,select{font-family:var(--mono)}
 .map-legend i{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:2px;vertical-align:middle}
 .map-note{position:absolute;right:7px;bottom:5px;background:rgba(0,0,0,.72);border:1px solid var(--line2);
   padding:2px 6px;font-size:8px;color:var(--dim)}
+.worldmap .hz{cursor:pointer}
+.worldmap .hz path{stroke:#000;stroke-width:.6}
+.worldmap .hz:hover path{stroke:#fff;stroke-width:1}
+
+/* ---------- disasters ---------- */
+.disasters .body{gap:4px}
+.hzstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+.hzstat{background:var(--panel2);border:1px solid var(--line2);padding:2px 4px;min-width:0}
+.hzstat label{display:block;font-size:7.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hzstat b{font-size:12px;color:#fff}
+.hzlist{display:flex;flex-direction:column;min-height:0;overflow:auto;flex:1 1 0}
+.hzrow{display:grid;grid-template-columns:5px 1fr auto;gap:5px;align-items:start;padding:3px 2px;border-bottom:1px solid #151515;cursor:pointer}
+.hzrow:hover{background:#141414}
+.hzrow .sev{width:5px;height:5px;border-radius:50%;margin-top:4px}
+.hzrow .t{font-size:9px;color:var(--txt);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hzrow .d{font-size:7.5px;color:var(--dim);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hzrow .k{font-size:7.5px;color:var(--dim);white-space:nowrap}
+.near{color:var(--amber)}
+.sev.Red{background:var(--red);box-shadow:0 0 5px var(--red)}.sev.Orange{background:var(--orange)}.sev.Green{background:var(--green)}.sev.quake{background:var(--violet)}
+
+/* ---------- economy ---------- */
+.macro .body{gap:4px}
+.macro .cards{flex:0 0 auto;overflow:visible}
+.wbwrap{min-height:0;overflow:auto;flex:1 1 0}
+.wbwrap td,.wbwrap th{padding:2px 4px;font-size:8.5px}
+
+/* ---------- live embed ---------- */
+.livemap .body{padding:0}
+.livemap iframe{width:100%;height:100%;border:0;display:block;background:#050505}
+
+.card.pending{border-style:dashed;cursor:pointer}
+.card.pending .val{color:#555;font-size:10px;font-weight:400}
 
 /* ---------- alerts ---------- */
 .alerts .body{padding:0;overflow:auto}
@@ -113,7 +145,7 @@ tbody tr:hover{background:#151515}
 .freight-group{display:flex;flex-direction:column;gap:3px;min-height:0}
 .freight-group-title{font-size:7.5px;line-height:1;color:#777;letter-spacing:.08em;white-space:nowrap}
 .freight-cards{display:grid;gap:4px;min-height:0;flex:1}
-.freight-cards.primary{grid-template-columns:repeat(3,minmax(0,1fr))}
+.freight-cards.primary{grid-template-columns:repeat(4,minmax(0,1fr))}
 .freight-cards.fleet{grid-template-columns:repeat(4,minmax(0,1fr))}
 .freight-cards .card{padding:3px 5px;gap:1px}
 .freight-cards .card .val{font-size:12px}
@@ -220,14 +252,15 @@ tbody tr:hover{background:#151515}
   .span3,.span4,.span5,.span6,.span7{grid-column:span 6}
   .composite,.map,.alerts{grid-column:span 6}
   .chokes,.freight{grid-column:span 6}
-  .energy,.macro,.countries{grid-column:span 6}
+  .energy,.macro,.countries,.disasters,.livemap{grid-column:span 6}
   .chain,.insights{grid-column:span 6}
+  .livemap{min-height:300px}
   .composite .body{grid-template-columns:120px 1fr}
   .gauge{width:120px;height:120px}
 }
 @media(max-width:760px){
   .grid{grid-template-columns:1fr;padding:4px;gap:4px}
-  .span3,.span4,.span5,.span6,.span7,.composite,.map,.alerts,.chokes,.freight,.energy,.macro,.countries,.chain,.insights{grid-column:span 1}
+  .span3,.span4,.span5,.span6,.span7,.composite,.map,.alerts,.chokes,.freight,.energy,.macro,.countries,.disasters,.livemap,.chain,.insights{grid-column:span 1}
   .topbar{height:auto;min-height:48px;padding:5px 8px}
   .topmeta{margin-left:0;width:100%}
   .drawer{width:100vw}
@@ -248,7 +281,7 @@ tbody tr:hover{background:#151515}
     <span id="clock">SEOUL --:--:--</span>
     <span>SNAPSHOT <b id="snap">--</b></span>
     <span>BUILT <b id="built">--</b></span>
-    <span id="modechip" class="chip pub">PUBLIC DATA</span>
+    <span id="modechip" class="chip pub">FREE / OPEN DATA</span>
   </span>
 </header>
 
@@ -259,7 +292,7 @@ tbody tr:hover{background:#151515}
   </section>
 
   <section class="panel map span6">
-    <header><span class="code red">MARITIME</span><span class="ttl">GLOBAL CHOKEPOINT MONITOR</span><span class="meta">WORLDMONITOR OPEN DATA · CLICK A NODE</span></header>
+    <header><span class="code red">MARITIME</span><span class="ttl">GLOBAL CHOKEPOINT MONITOR</span><span class="meta">WORLDMONITOR OPEN DATA + GDACS / USGS · CLICK A NODE</span></header>
     <div class="body" id="map"></div>
   </section>
 
@@ -268,29 +301,39 @@ tbody tr:hover{background:#151515}
     <div class="body" id="alerts"></div>
   </section>
 
-  <section class="panel chokes span7">
-    <header><span class="code red">CHOKE</span><span class="ttl">MARITIME BOTTLENECKS</span><button class="linkbtn" data-entity="category" data-id="chokepoint">ALL →</button><span class="meta">13 MARITIME CHOKEPOINTS · SCORE / WAR RISK / FLOW</span></header>
+  <section class="panel chokes span4">
+    <header><span class="code red">CHOKE</span><span class="ttl">MARITIME BOTTLENECKS</span><button class="linkbtn" data-entity="category" data-id="chokepoint">ALL →</button><span class="meta">SCORE / WAR RISK / FLOW</span></header>
     <div class="body scroll" id="choketable"></div>
   </section>
 
   <section class="panel freight span5">
-    <header><span class="code amber">FREIGHT</span><span class="ttl">FREIGHT &amp; CAPACITY</span><span class="meta">MI2 · KSG / Linerlytica / Alphaliner / TAC</span></header>
+    <header><span class="code amber">FREIGHT</span><span class="ttl">FREIGHT &amp; CAPACITY</span><span class="meta" id="freightmeta">SCFI / CCFI / BDI · MI2</span></header>
     <div class="body" id="freight"></div>
   </section>
 
-  <section class="panel energy span4">
-    <header><span class="code orange">NRG</span><span class="ttl">ENERGY &amp; BUNKER</span><span class="meta">MI2 · Opinet / Ship &amp; Bunker</span></header>
+  <section class="panel disasters span3">
+    <header><span class="code red">DISASTER</span><span class="ttl">NATURAL HAZARDS</span><button class="linkbtn" data-entity="category" data-id="disasters">ALL →</button><span class="meta">GDACS · USGS</span></header>
+    <div class="body" id="disasters"></div>
+  </section>
+
+  <section class="panel energy span3">
+    <header><span class="code orange">ENERGY</span><span class="ttl">ENERGY &amp; BUNKER</span><span class="meta">MI2 · Opinet / Ship &amp; Bunker</span></header>
     <div class="body" id="energy"></div>
   </section>
 
-  <section class="panel macro span4">
-    <header><span class="code violet">MACRO</span><span class="ttl">GLOBAL ECONOMY</span><span class="meta">MI2 · NY Fed / World Bank</span></header>
+  <section class="panel macro span3">
+    <header><span class="code violet">ECONOMIC</span><span class="ttl">GLOBAL ECONOMY</span><span class="meta">MI2 · WORLD BANK</span></header>
     <div class="body" id="macro"></div>
   </section>
 
-  <section class="panel countries span4">
+  <section class="panel countries span3">
     <header><span class="code blue">RESILIENCE</span><span class="ttl">RESILIENCE</span><span class="meta">WORLDMONITOR 5-FACTOR</span></header>
     <div class="body" id="countries"></div>
+  </section>
+
+  <section class="panel livemap span3">
+    <header><span class="code red">CONFLICT</span><span class="ttl">CONFLICT · QUAKE · WEATHER</span><span class="meta"><a href="https://www.worldmonitor.app/" target="_blank" rel="noopener" style="color:inherit">POWERED BY WORLD MONITOR ↗</a> · HOURLY</span></header>
+    <div class="body"><iframe src="https://www.worldmonitor.app/embed?layers=conflicts,earthquakes,weather&amp;center=20,60&amp;zoom=1&amp;theme=dark&amp;variant=full" title="World Monitor live map" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
   </section>
 
   <section class="panel chain span7">
@@ -327,7 +370,13 @@ const cls = v => v>0 ? 'up' : v<0 ? 'down' : 'flat';
 const arrow = v => v>0 ? '▲' : v<0 ? '▼' : '─';
 const STATUS = {green:'#3fb950', yellow:'#d29922', red:'#f85149'};
 const WAR = {normal:'#8f8f8f', elevated:'#d29922', high:'#ff8c00', critical:'#f85149', war_zone:'#ff4d4d', unspecified:'#8f8f8f'};
-const CAT = {freight:'#ffa500', energy:'#ff8c00', macro:'#d2a8ff', country:'#58a6ff', chokepoint:'#f85149'};
+const CAT = {freight:'#ffa500', energy:'#ff8c00', macro:'#d2a8ff', country:'#58a6ff', chokepoint:'#f85149', disaster:'#f85149'};
+const HZ = {Red:'#f85149', Orange:'#ff8c00', Green:'#3fb950', quake:'#d2a8ff'};
+const ISO3_2 = {KOR:'KR',USA:'US',CHN:'CN',JPN:'JP',DEU:'DE',NLD:'NL',SGP:'SG',ARE:'AE',IND:'IN',BRA:'BR'};
+const DZ = U.disasters || {};
+const gdacsItems = () => (DZ.gdacs && DZ.gdacs.items) || [];
+const quakeItems = () => (DZ.earthquakes && DZ.earthquakes.items) || [];
+const nearTxt = n => n ? `${n.name} ${n.km}km` : '';
 const DN = new Intl.DisplayNames(['ko'], {type:'region'});
 const cname = code => { try { return DN.of(code) || code; } catch(e) { return code; } };
 const allMetrics = () => [...U.freight.metrics, ...U.energy.metrics, ...U.macro.metrics];
@@ -437,11 +486,23 @@ function mapSVG(){
       ${show?`<text x="${(x+dx).toFixed(1)}" y="${(y-6).toFixed(1)}" text-anchor="${anchor}">${esc(c.name)}</text>`:''}
     </g>`;
   }).join('');
+  const diamond=(x,y,s)=>`M${x.toFixed(1)},${(y-s).toFixed(1)} L${(x+s).toFixed(1)},${y.toFixed(1)} L${x.toFixed(1)},${(y+s).toFixed(1)} L${(x-s).toFixed(1)},${y.toFixed(1)} Z`;
+  const hz=[
+    ...gdacsItems().filter(e=>e.lat!=null&&e.lon!=null&&e.current&&(e.alert==='Red'||e.alert==='Orange')).map(e=>{
+      const [x,y]=project(e.lon,e.lat);
+      return `<g class="hz" data-entity="disaster" data-id="${esc(e.id)}"><title>GDACS ${esc(e.alert)} · ${esc(e.name)}</title><path d="${diamond(x,y,e.alert==='Red'?4.5:3.5)}" fill="${HZ[e.alert]}" opacity=".9"/></g>`;
+    }),
+    ...quakeItems().filter(q=>q.lat!=null&&q.lon!=null&&q.mag>=6).map(q=>{
+      const [x,y]=project(q.lon,q.lat);
+      return `<g class="hz" data-entity="quake" data-id="${esc(q.id)}"><title>M${q.mag} · ${esc(q.place)}</title><path d="${diamond(x,y,3+Math.min(3,q.mag-6))}" fill="${HZ.quake}" opacity=".85"/></g>`;
+    })
+  ].join('');
   return `<svg viewBox="0 0 ${W} ${H}" class="worldmap" preserveAspectRatio="xMidYMid slice">
     <rect width="${W}" height="${H}" fill="#050505"/>
     <g class="grid">${grat.join('')}</g>
     <path class="land" d="${MAP.land_path}"/>
     <g>${rsvg}</g>
+    <g>${hz}</g>
     <g>${dots}</g>
   </svg>
   <div class="map-legend">
@@ -449,8 +510,10 @@ function mapSVG(){
     <span><i style="background:${STATUS.yellow}"></i>yellow</span>
     <span><i style="background:${STATUS.red}"></i>red</span>
     <span>· node size = score</span>
+    <span>· <span style="color:${HZ.Red}">◆</span><span style="color:${HZ.Orange}">◆</span> GDACS</span>
+    <span><span style="color:${HZ.quake}">◆</span> M6+</span>
   </div>
-  <div class="map-note">13 chokepoints · WorldMonitor open data · click node</div>`;
+  <div class="map-note">${U.chokepoints.items.length} chokepoints · WorldMonitor open data · click node</div>`;
 }
 
 /* ---------------- renderers ---------------- */
@@ -525,15 +588,26 @@ function regionalTradeCard(r){
   </article>`;
 }
 
+const MANUAL_LABEL={scfi:'SCFI 종합',ccfi:'CCFI 종합',bdi:'BDI'};
+function pendingCard(id){
+  return `<article class="card pending" data-entity="manual-help" data-id="${esc(id)}">
+    <div class="lab">${esc(MANUAL_LABEL[id]||id)}</div>
+    <div class="val">제공 대기</div>
+    <div class="chg flat">data/manual/${esc(id)}.csv</div>
+  </article>`;
+}
 function renderFreight(){
   const byId=Object.fromEntries(U.freight.metrics.map(m=>[m.id,m]));
-  const primary=['scfi','bdi','tac'].map(id=>byId[id]).filter(Boolean);
+  const primary=['scfi','ccfi','bdi','tac'].map(id=>byId[id]?metricCard(byId[id]):MANUAL_LABEL[id]?pendingCard(id):'').join('');
   const fleet=['fleet_ships','fleet_teu','active_ships','top100_teu'].map(id=>byId[id]).filter(Boolean);
   const regionalTrades = Object.values(U.freight.details.regional_trades || {});
+  const src=U.freight.sources||{};
+  const srcLabel=id=>`${id.toUpperCase()} ${src[id]==='manual'?'제공':src[id]==='mi2'?'MI2':'대기'}`;
+  $('#freightmeta').textContent=['scfi','ccfi','bdi'].map(srcLabel).join(' · ')+' · TAC MI2';
   $('#freight').innerHTML=`
     <div class="freight-group">
-      <div class="freight-group-title">FREIGHT INDICES · SCFI / BDI / TAC</div>
-      <div class="freight-cards primary">${primary.map(metricCard).join('')}</div>
+      <div class="freight-group-title">FREIGHT INDICES · SCFI / CCFI / BDI / TAC</div>
+      <div class="freight-cards primary">${primary}</div>
     </div>
     <div class="freight-group">
       <div class="freight-group-title">CAPACITY · LINERLYTICA / ALPHALINER</div>
@@ -548,9 +622,53 @@ function renderEnergy(){
   const ms=U.energy.metrics;
   $('#energy').innerHTML=`<div class="cards cards3">${ms.map(metricCard).join('')}</div>`;
 }
+function wbTable(){
+  const wb=U.macro.worldbank;
+  if(!wb||!wb.rows.length) return '<div class="empty">World Bank data not fetched yet</div>';
+  const cell=(v,y)=>`<td class="num" title="${esc(y||'')}">${v!=null?fmt(v,1):'-'}</td>`;
+  return `<table><thead><tr><th>Country</th><th class="num">GDP %</th><th class="num">CPI %</th><th class="num">Trade/GDP</th></tr></thead><tbody>${wb.rows.map(r=>{
+    const iso2=ISO3_2[r.iso3]||r.iso3;
+    return `<tr data-entity="country" data-id="${esc(iso2)}"><td>${esc(cname(iso2))}</td>${cell(r.gdp_growth,r.gdp_growth_year)}${cell(r.inflation,r.inflation_year)}${cell(r.trade_pct_gdp,r.trade_pct_gdp_year)}</tr>`;
+  }).join('')}</tbody></table>`;
+}
 function renderMacro(){
   const ms=U.macro.metrics;
-  $('#macro').innerHTML=`<div class="cards cards3">${ms.map(metricCard).join('')}</div>`;
+  $('#macro').innerHTML=`<div class="cards cards3">${ms.map(metricCard).join('')}</div>
+    <div class="sect"><span>KEY ECONOMIES · WORLD BANK (LATEST YEAR)</span></div>
+    <div class="wbwrap">${wbTable()}</div>`;
+}
+
+function hzRow(e){
+  return `<div class="hzrow" data-entity="disaster" data-id="${esc(e.id)}">
+    <span class="sev ${esc(e.alert)}"></span>
+    <div style="min-width:0"><div class="t">${esc(e.name)}</div><div class="d">${esc(e.severity||e.type_label||'')}${e.near?` · <span class="near">${esc(nearTxt(e.near))}</span>`:''}</div></div>
+    <span class="k">${esc(e.type_label||e.type)}${e.current?'':' · 종료'}</span>
+  </div>`;
+}
+function quakeRow(q){
+  return `<div class="hzrow" data-entity="quake" data-id="${esc(q.id)}">
+    <span class="sev quake"></span>
+    <div style="min-width:0"><div class="t">M${fmt(q.mag,1)} · ${esc(q.place)}</div><div class="d">깊이 ${fmt(q.depth_km,0)}km · ${esc((q.time||'').slice(0,16).replace('T',' '))} UTC${q.near?` · <span class="near">${esc(nearTxt(q.near))}</span>`:''}</div></div>
+    <span class="k">${q.tsunami?'쓰나미':''}</span>
+  </div>`;
+}
+function renderDisasters(){
+  const g=DZ.gdacs, q=DZ.earthquakes;
+  if(!g&&!q){ $('#disasters').innerHTML='<div class="empty">Open data not fetched yet · run fetch_open_data.py</div>'; return; }
+  const c=(g&&g.counts)||{};
+  const events=gdacsItems().filter(e=>e.alert!=='Green'||e.current).slice(0,10);
+  const quakes=quakeItems().filter(x=>x.mag>=5.5).slice(0,5);
+  $('#disasters').innerHTML=`
+    <div class="hzstats">
+      <div class="hzstat"><label>GDACS RED</label><b style="color:${HZ.Red}">${c.Red??'-'}</b></div>
+      <div class="hzstat"><label>ORANGE</label><b style="color:${HZ.Orange}">${c.Orange??'-'}</b></div>
+      <div class="hzstat"><label>M4.5+ 7D</label><b>${q?q.count:'-'}</b></div>
+      <div class="hzstat"><label>M6+ 7D</label><b style="color:${HZ.quake}">${q?q.m6:'-'}</b></div>
+    </div>
+    <div class="hzlist">
+      ${events.map(hzRow).join('')||'<div class="empty">No active GDACS alerts</div>'}
+      ${quakes.map(quakeRow).join('')}
+    </div>`;
 }
 
 function renderCountries(){
@@ -595,6 +713,11 @@ function renderInsights(){
   if(brent) items.push({sev:brent.pct<-5?'high':'watch', t:`Brent ${fmt(brent.value)} · ${pct(brent.pct)}`, s:`VLSFO Singapore ${vlsfo?fmt(vlsfo.value)+' $/ton ('+pct(vlsfo.pct)+')':'-'} · 유가/벙커 비용`, entity:{type:'metric',id:'brent'}});
   const gscpi=metricById('gscpi'), cpi=metricById('cpi');
   if(gscpi) items.push({sev:gscpi.value>=1.5?'high':'watch', t:`GSCPI ${fmt(gscpi.value)} · World CPI ${cpi?fmt(cpi.value)+'%':'-'}`, s:`공급망 압력과 물가. GDP ${metricById('gdp')?fmt(metricById('gdp').value)+'%':'-'}`, entity:{type:'metric',id:'gscpi'}});
+  const hzNear=gdacsItems().find(e=>e.current&&e.near&&e.alert!=='Green') || quakeItems().find(x=>x.near&&x.mag>=6);
+  const hzTop=hzNear || gdacsItems().find(e=>e.current&&e.alert!=='Green');
+  if(hzTop) items.push(hzTop.mag!=null
+    ? {sev:'high', t:`M${fmt(hzTop.mag,1)} ${hzTop.place}`, s:`USGS · 병목 인근 ${nearTxt(hzTop.near)} · 항만/해상 운항 영향 확인`, entity:{type:'quake',id:hzTop.id}}
+    : {sev:hzTop.alert==='Red'?'critical':'high', t:`GDACS ${hzTop.alert} · ${hzTop.name}`, s:`${hzTop.severity||hzTop.type_label}${hzTop.near?' · 병목 인근 '+nearTxt(hzTop.near):''}`, entity:{type:'disaster',id:hzTop.id}});
   const low=U.countries.items.filter(x=>x.avg!=null).slice(-1)[0];
   if(low) items.push({sev:'info', t:`최저 회복력: ${cname(low.code)} ${low.avg.toFixed(1)}`, s:'5-factor scorecard · 식량/에너지/인구/기술/방어', entity:{type:'country',id:low.code}});
   $('#insights').innerHTML=`<div class="insights">${items.map(x=>`
@@ -620,7 +743,7 @@ const MI2_FREIGHT_DETAIL_PAGES={
   active_ships:'mi2/alphaliner/detail.html', top100_teu:'mi2/alphaliner/detail.html'
 };
 function openDetail(type,id){
-  if(type==='metric'&&MI2_FREIGHT_DETAIL_PAGES[id]){
+  if(type==='metric'&&MI2_FREIGHT_DETAIL_PAGES[id]&&(metricById(id)||{source:''}).source.startsWith('MI2')){
     window.location.href=MI2_FREIGHT_DETAIL_PAGES[id];
     return;
   }
@@ -648,14 +771,24 @@ function openDetail(type,id){
     const n=U.chain.nodes.find(x=>x.id===id); if(!n) return;
     code='CHAIN'; title=n.label; sub=`transmission node · score ${n.score}`;
     body=chainDetail(n);
-  } else if(type==='live'){
-    code='LIVE'; title='WorldMonitor live data'; sub='API key mode'; body=liveDetail();
+  } else if(type==='disaster'){
+    const e=gdacsItems().find(x=>String(x.id)===String(id)); if(!e) return;
+    code='DISASTER'; title=e.name; sub=`GDACS ${e.alert} · ${e.type_label||e.type}`;
+    body=disasterDetail(e);
+  } else if(type==='quake'){
+    const q=quakeItems().find(x=>x.id===id); if(!q) return;
+    code='QUAKE'; title=`M${fmt(q.mag,1)} · ${q.place}`; sub='USGS Earthquake Hazards Program';
+    body=quakeDetail(q);
+  } else if(type==='manual-help'){
+    code='FREIGHT'; title=`${MANUAL_LABEL[id]||id} 데이터 제공 방법`; sub=`data/manual/${id}.csv`;
+    body=manualHelpDetail(id);
   } else if(type==='category'){
     if(id==='composite'){ code='SYSTEM'; title='Supply Chain Stress Index'; sub='composite methodology'; body=compositeDetail(); }
     else if(id==='freight'){ code='FREIGHT'; title='Freight & capacity'; sub='MI2 · KSG / Linerlytica / Alphaliner / TAC'; body=categoryDetail('freight'); }
     else if(id==='energy'){ code='ENERGY'; title='Energy & bunker'; sub='MI2 · Opinet / Ship & Bunker'; body=categoryDetail('energy'); }
     else if(id==='macro'){ code='MACRO'; title='Global economy'; sub='MI2 · NY Fed / World Bank'; body=categoryDetail('macro'); }
     else if(id==='chokepoint'){ code='CHOKEPOINT'; title='All chokepoints'; sub='WorldMonitor open data'; body=chokepointListDetail(); }
+    else if(id==='disasters'){ code='DISASTER'; title='Natural hazards'; sub=`GDACS ${DZ.gdacs?DZ.gdacs.window_days+'일':''} · USGS M4.5+ 7일`; body=disasterListDetail(); }
   }
   $('#dcode').textContent=code; $('#dtitle').textContent=title; $('#dsub').textContent=sub;
   $('#dbody').innerHTML=body;
@@ -703,6 +836,7 @@ function metricDetail(m){
   const related=allMetrics().filter(x=>x.category===m.category && x.id!==m.id);
   let extra='';
   if(m.id==='scfi') extra=tableHTML('SCFI REGIONS', ['Region','Value','%'], U.freight.details.scfi_regions.map(r=>[r.region,fmt(r.value),pct(r.pct)]));
+  if(m.id==='ccfi') extra=tableHTML('CCFI ROUTES', ['Route','Value','%'], (U.freight.details.ccfi_routes||[]).map(r=>[r.region,fmt(r.value),pct(r.pct)]));
   if(m.id==='bdi') extra=tableHTML('BDI SUB-INDICES', ['Index','Value','%'], U.freight.details.bdi_subindices.map(r=>[r.region,fmt(r.value),pct(r.pct)]));
   if(m.id==='tac') extra=tableHTML('TAC ROUTES', ['Route','Value','%'], U.freight.details.tac_routes.map(r=>[r.route,fmt(r.value),pct(r.pct)]));
   if(m.id==='fleet_teu'||m.id==='fleet_ships') extra=tableHTML('FLEET STATUS', ['Status','Ships','TEU'], U.freight.details.fleet_status.map(r=>[r.status,fmt(r.ships,0),fmt(r.teu,0)]));
@@ -724,7 +858,7 @@ function metricDetail(m){
     ${extra}
     <div class="dsec">RELATED</div>
     <div class="pillrow">${related.map(x=>`<span class="pill" data-entity="metric" data-id="${x.id}">${esc(x.label)} ${fmt(x.value)}</span>`).join('')}</div>
-    <div class="dsource">Source: ${esc(m.source)} · MI2 SQLite snapshot. Click a related metric to inspect its series.</div>`;
+    <div class="dsource">Source: ${esc(m.source)}${m.source.startsWith('MI2')?' · MI2 SQLite snapshot':' · data/manual/'+esc(m.id)+'.csv'}. Click a related metric to inspect its series.</div>`;
 }
 function tableHTML(title, head, rows){
   return `<div class="dsec">${esc(title)}</div><table class="dtable"><thead><tr>${head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
@@ -745,6 +879,7 @@ function countryDetail(c){
     }).join('')}
     <div class="dsec">BANDS</div>
     <ul class="dlist">${pillars.map(([k,label])=>`<li><span>${label}</span><span>${esc(c.bands[k]||'-')}</span></li>`).join('')}</ul>
+    ${wbCountryBlock(c.code)}
     <div class="dsec">COMPARISON</div>
     <div class="country-list">${U.countries.selected.map(code=>U.countries.items.find(x=>x.code===code)).filter(x=>x&&x.avg!=null).map(x=>`
       <div class="crow ${x.avg<50?'low':''}" data-entity="country" data-id="${esc(x.code)}">
@@ -780,7 +915,7 @@ function alertDetail(a){
     <div class="dstat"><label>Signal</label><b>${esc(a.title)}</b></div></div>
     <div class="dsec">OPEN ENTITY</div>
     <div class="pillrow">${ent.type?`<span class="pill" data-entity="${esc(ent.type)}" data-id="${esc(ent.id)}">Open ${esc(ent.type)} →</span>`:''}</div>
-    <div class="dsource">Auto-generated from the current snapshot. Rule thresholds: chokepoint score ≥70 critical, ≥40 high, ≥20 watch; flow <85% high; WoW ≤ -15% watch; Brent |pct| ≥5% high; GSCPI ≥1.5 high.</div>`;
+    <div class="dsource">Auto-generated from the current snapshot. Rule thresholds: chokepoint score ≥70 critical, ≥40 high, ≥20 watch; flow <85% high; WoW ≤ -15% watch; Brent |pct| ≥5% high; GSCPI ≥1.5 high; GDACS Red/Orange (current) — critical if Red and within 500km of a chokepoint; USGS M6.5+, or M6+ near a chokepoint.</div>`;
 }
 
 function chainDetail(n){
@@ -803,7 +938,7 @@ function compositeDetail(){
     <ul class="dlist">${Object.entries(U.meta.methodology).map(([k,v])=>`<li><span>${esc(k)}</span><span>${esc(v)}</span></li>`).join('')}</ul>
     <div class="dsec">TOP SIGNALS</div>
     <div class="pillrow">${U.composite.alerts.slice(0,8).map(a=>`<span class="pill" data-entity="alert" data-id="${esc(a.title)}">${esc(a.title)}</span>`).join('')}</div>
-    <div class="dsource">Sources: MI2 (freight/oil/macro) + WorldMonitor chokepoint open data (CC-BY-4.0) + WorldMonitor Five-Factor Scorecard. Composite is an original heuristic for this dashboard, not a WorldMonitor or MI2 official index.</div>`;
+    <div class="dsource">Sources: ${U.meta.sources.map(s=>esc(s.name)+' ('+esc(s.license)+')').join(' · ')}. Composite is an original heuristic for this dashboard, not a WorldMonitor or MI2 official index.</div>`;
 }
 
 function categoryDetail(cat){
@@ -821,33 +956,71 @@ function chokepointListDetail(){
 }
 
 
-function liveDetail(){
-  const L=U.live;
-  if(!L) return '<div class="empty">No live data. Set WORLDMONITOR_API_KEY and run fetch_worldmonitor.py.</div>';
-  const ep=L.endpoints||{};
-  const parts=[];
-  parts.push(`<div style="font-size:9px;color:var(--dim);line-height:1.5">Fetched ${esc(L.fetched_at||'-')} · ${Object.keys(ep).length} endpoint groups · ${Object.keys(L.errors||{}).length} errors</div>`);
-  const cp=ep.chokepoint_status;
-  if(cp&&cp.chokepoints) parts.push(tableHTML('LIVE CHOKEPOINT STATUS',['Chokepoint','Score','Status','War','Congestion'],cp.chokepoints.map(c=>[c.name,c.disruptionScore,c.status,c.warRiskTier,c.congestionLevel])));
-  const sr=ep.shipping_rates;
-  if(sr&&sr.indices) parts.push(tableHTML('SHIPPING RATES',['Index','Name','Value','Change %','Unit'],sr.indices.map(x=>[x.indexId,x.name,x.currentValue,x.changePct,x.unit])));
-  const cq=ep.commodity_quotes;
-  if(cq&&cq.quotes) parts.push(tableHTML('COMMODITY QUOTES',['Symbol','Name','Price','Change'],cq.quotes.map(x=>[x.symbol,x.name,x.price,x.change])));
-  const epz=ep.energy_prices;
-  if(epz&&epz.prices) parts.push(tableHTML('ENERGY PRICES',['Commodity','Name','Price','Unit','Change'],epz.prices.map(x=>[x.commodity,x.name,x.price,x.unit,x.change])));
-  const ms=ep.macro_signals;
-  if(ms) parts.push(`<div class="dsec">MACRO SIGNALS</div><div class="dgrid"><div class="dstat"><label>Bullish</label><b>${ms.bullishCount??'-'}</b></div><div class="dstat"><label>Total</label><b>${ms.totalCount??'-'}</b></div><div class="dstat"><label>Regime</label><b>${esc(ms.signals&&ms.signals.macroRegime?ms.signals.macroRegime.status:'-')}</b></div></div>`);
-  const wc=ep.world_cpi;
-  if(wc&&wc.countries) parts.push(tableHTML('WORLD CPI (latest)',['Country','Period','YoY %','Source'],wc.countries.slice(0,30).map(c=>{const p=(c.periods||[])[-1]||{};const r=p.reading||{};return [c.country,p.period,r.yearOverYear?r.yearOverYear.percent:'-',c.source]})));
-  const fred=ep.fred;
-  if(fred) parts.push(tableHTML('FRED SERIES',['Series','Title','Latest','Date','Units'],Object.entries(fred).map(([k,v])=>{const o=(v.series&&v.series.observations||[]).slice(-1)[0]||{};return [k,v.series?v.series.title:'-',o.value,o.date,v.series?v.units:'-']})));
-  const cci=ep.country_chokepoint_index;
-  if(cci) parts.push(tableHTML('COUNTRY CHOKEPOINT EXPOSURE',['Country','Primary','Exposures'],Object.entries(cci).map(([k,v])=>[k,v.primaryChokepointId||'-',(v.exposures||[]).map(e=>e.chokepointId+':'+(e.exposureScore??'-')).join(', ')])));
-  if(ep.chokepoint_history) parts.push(`<div class="dsec">CHOKEPOINT HISTORY</div><div style="font-size:9px;color:var(--dim);line-height:1.5">${Object.keys(ep.chokepoint_history).length} chokepoints have lazy history loaded. Open a chokepoint to inspect its transit series.</div>`);
-  if(ep.bypass_options) parts.push(`<div class="dsec">BYPASS OPTIONS</div><div style="font-size:9px;color:var(--dim);line-height:1.5">${Object.keys(ep.bypass_options).length} chokepoints have bypass corridors loaded.</div>`);
-  if(L.errors) parts.push(`<div class="dsec">ERRORS</div><ul class="dlist">${Object.entries(L.errors).map(([k,v])=>`<li><span>${esc(k)}</span><span>${esc(v.error||'failed')}</span></li>`).join('')}</ul>`);
-  parts.push(`<div class="dsource">Live data from WorldMonitor API. Key-gated endpoints require a Pro/Enterprise key. Public chokepoint open data and scorecard remain available without a key.</div>`);
-  return parts.join('');
+function linkOut(url,label){ return url?`<a href="${esc(url)}" target="_blank" rel="noopener" style="color:var(--amber)">${esc(label)} ↗</a>`:''; }
+function nearBlock(n){
+  return n?`<div class="dsec">NEARBY CHOKEPOINT (≤${DZ.near_km}km)</div><div class="pillrow"><span class="pill" data-entity="chokepoint" data-id="${esc(n.id)}">${esc(n.name)} · ${n.km}km →</span></div>`
+    :`<div class="dsec">NEARBY CHOKEPOINT</div><div class="empty">${DZ.near_km}km 이내 해상 병목 없음</div>`;
+}
+function disasterDetail(e){
+  return `<div class="dgrid">
+      <div class="dstat"><label>Alert</label><b style="color:${HZ[e.alert]||'#fff'}">${esc(e.alert)}</b><small>score ${e.score??'-'}</small></div>
+      <div class="dstat"><label>Type</label><b>${esc(e.type_label||e.type)}</b></div>
+      <div class="dstat"><label>Status</label><b>${e.current?'진행 중':'종료'}</b></div>
+      <div class="dstat"><label>From</label><b>${esc((e.from||'-').slice(0,10))}</b></div>
+      <div class="dstat"><label>To</label><b>${esc((e.to||'-').slice(0,10))}</b></div>
+      <div class="dstat"><label>Location</label><b>${e.lat!=null?fmt(e.lat,1)+', '+fmt(e.lon,1):'-'}</b></div>
+    </div>
+    <div class="dsec">SEVERITY</div>
+    <div style="font-size:10px;line-height:1.5">${esc(e.severity||'-')}</div>
+    <div class="dsec">AFFECTED</div>
+    <div style="font-size:9px;line-height:1.5;color:var(--txt)">${esc(e.country||'-')}</div>
+    ${nearBlock(e.near)}
+    <div class="dsec">REPORT</div>
+    <div style="font-size:9px">${linkOut(e.url,'GDACS event report')||'-'}</div>
+    <div class="dsource">Source: GDACS — Global Disaster Alert and Coordination System (European Commission JRC / UN OCHA). Fetched ${esc(DZ.gdacs&&DZ.gdacs.fetched_at||'-')}.</div>`;
+}
+function quakeDetail(q){
+  return `<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+      <div style="font-size:30px;font-weight:700;color:${HZ.quake};line-height:1">M${fmt(q.mag,1)}</div>
+      <div style="font-size:9px;color:#777">${esc((q.time||'').replace('T',' ').replace('Z',' UTC'))}</div>
+    </div>
+    <div class="dgrid">
+      <div class="dstat"><label>Depth</label><b>${fmt(q.depth_km,0)} km</b></div>
+      <div class="dstat"><label>Tsunami flag</label><b style="color:${q.tsunami?'var(--red)':'#fff'}">${q.tsunami?'YES':'no'}</b></div>
+      <div class="dstat"><label>PAGER alert</label><b>${esc(q.alert||'-')}</b><small>significance ${q.sig??'-'}</small></div>
+    </div>
+    ${nearBlock(q.near)}
+    <div class="dsec">EVENT PAGE</div>
+    <div style="font-size:9px">${linkOut(q.url,'USGS event page')||'-'}</div>
+    <div class="dsource">Source: USGS Earthquake Hazards Program (U.S. public domain). M4.5+ past 7 days. Fetched ${esc(DZ.earthquakes&&DZ.earthquakes.fetched_at||'-')}.</div>`;
+}
+function disasterListDetail(){
+  const g=gdacsItems(), q=quakeItems();
+  return `${g.length?tableHTML('GDACS ALERTS', ['Alert','Type','Event','Near'], g.map(e=>[e.alert,e.type_label||e.type,e.name,nearTxt(e.near)])):'<div class="empty">No GDACS data</div>'}
+    ${q.length?tableHTML('USGS EARTHQUAKES M4.5+ (7D)', ['Mag','Place','UTC','Near'], q.map(x=>[fmt(x.mag,1),x.place,(x.time||'').slice(0,16).replace('T',' '),nearTxt(x.near)])):'<div class="empty">No USGS data</div>'}
+    <div class="dsource">GDACS (EC JRC / UN OCHA) · USGS (public domain). Green GDACS earthquakes are omitted because USGS covers them. "Near" = within ${DZ.near_km}km of a WorldMonitor chokepoint.</div>`;
+}
+function wbCountryBlock(iso2){
+  const wb=U.macro.worldbank; if(!wb) return '';
+  const r=wb.rows.find(x=>(ISO3_2[x.iso3]||x.iso3)===iso2); if(!r) return '';
+  return `<div class="dsec">ECONOMY · WORLD BANK</div><div class="dgrid">
+    <div class="dstat"><label>GDP growth</label><b>${r.gdp_growth!=null?fmt(r.gdp_growth,1)+'%':'-'}</b><small>${esc(r.gdp_growth_year||'')}</small></div>
+    <div class="dstat"><label>CPI inflation</label><b>${r.inflation!=null?fmt(r.inflation,1)+'%':'-'}</b><small>${esc(r.inflation_year||'')}</small></div>
+    <div class="dstat"><label>Trade % GDP</label><b>${r.trade_pct_gdp!=null?fmt(r.trade_pct_gdp,1)+'%':'-'}</b><small>${esc(r.trade_pct_gdp_year||'')}</small></div></div>`;
+}
+function manualHelpDetail(id){
+  const sample=id==='bdi'
+    ? 'date,series,value\n2026-11-20,COMPOSITE,2901\n2026-11-20,BCI,4120\n2026-11-20,BPI,2350'
+    : 'date,series,value\n2026-11-20,COMPOSITE,1234.56\n2026-11-20,Europe,1500\n2026-11-20,US West Coast,2100';
+  return `<div style="font-size:10px;line-height:1.6">아직 <b>${esc(MANUAL_LABEL[id]||id)}</b> 자료가 없습니다. 아래 형식의 CSV를 <code>data/manual/${esc(id)}.csv</code>로 넣으면 다음 빌드부터 이 카드에 표시됩니다.</div>
+    <div class="dsec">FORMAT (UTF-8 CSV)</div>
+    <pre style="font-size:9px;background:#0d0d0d;border:1px solid var(--line);padding:6px;white-space:pre-wrap">${esc(sample)}</pre>
+    <ul class="dlist">
+      <li><span>date</span><span>YYYY-MM-DD</span></li>
+      <li><span>series</span><span>COMPOSITE = 종합지수, 그 외 = 항로/서브지수</span></li>
+      <li><span>value</span><span>숫자 (천 단위 콤마 허용)</span></li>
+    </ul>
+    <div class="dsource">SCFI/BDI는 파일이 없으면 MI2 자료로 대체 표시합니다. CCFI는 파일이 있어야 표시됩니다.</div>`;
 }
 
 /* ---------------- boot ---------------- */
@@ -862,8 +1035,7 @@ function boot(){
   $('#built').textContent=U.meta.generated_at;
   $('#cpchip').textContent=U.chokepoints.items.length+' CHOKEPOINTS';
   $('#ctrychip').textContent=U.countries.items.filter(x=>x.avg!=null).length+' COUNTRIES';
-  if(U.live){ $('#srcchip').textContent='MI4 LIVE'; $('#srcchip').className='chip live'; $('#srcchip').dataset.entity='live'; $('#srcchip').dataset.id='live'; $('#srcchip').style.cursor='pointer'; $('#modechip').textContent='LIVE DATA'; $('#modechip').className='chip live'; }
-  renderComposite(); renderMap(); renderAlerts(); renderChoketable(); renderFreight(); renderEnergy(); renderMacro(); renderCountries(); renderChain(); renderInsights();
+  renderComposite(); renderMap(); renderAlerts(); renderChoketable(); renderFreight(); renderDisasters(); renderEnergy(); renderMacro(); renderCountries(); renderChain(); renderInsights();
   attachChartHover(document);
   clock(); setInterval(clock,1000);
 }

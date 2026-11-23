@@ -5,9 +5,10 @@
 Sources
 -------
 - MI2 (local): summary.json + per-module SQLite DBs
+- User-supplied freight indices: data/manual/{scfi,ccfi,bdi}.csv (override MI2)
 - WorldMonitor chokepoint open data (public, CC-BY-4.0)
 - WorldMonitor Five-Factor Scorecard (public, no key)
-- Optional: data/worldmonitor-live.json (fetched with an API key)
+- Open data (fetch_open_data.py): USGS earthquakes, GDACS alerts, World Bank
 
 Output
 ------
@@ -16,6 +17,7 @@ Output
 """
 from __future__ import annotations
 
+import csv
 import json
 import math
 import os
@@ -37,6 +39,16 @@ DATA.mkdir(exist_ok=True)
 
 def jload(p: Path):
     return json.loads(p.read_text(encoding='utf-8'))
+
+def jload_opt(name: str):
+    p = DATA / name
+    if not p.exists():
+        return None
+    try:
+        return jload(p)
+    except Exception as e:
+        print(f'Warning: {name} unreadable: {e}')
+        return None
 
 def r2(v):
     if v is None:
@@ -135,9 +147,61 @@ def metric_id(module_id, label, mid, category, unit=None, source='MI2'):
         'source': source,
     }
 
+# ---------------------------------------------------------------------------
+# User-supplied freight indices — data/manual/<id>.csv (date,series,value)
+# Series "COMPOSITE" is the headline; other series are routes / sub-indices.
+# ---------------------------------------------------------------------------
+MANUAL = DATA / 'manual'
+MANUAL_INDICES = [('scfi', 'SCFI 종합'), ('ccfi', 'CCFI 종합'), ('bdi', 'BDI')]
+
+def load_manual(mid):
+    p = MANUAL / f'{mid}.csv'
+    if not p.exists():
+        return {}
+    series = {}
+    with p.open(encoding='utf-8-sig', newline='') as f:
+        for n, row in enumerate(csv.DictReader(f), start=2):
+            try:
+                d = datetime.strptime(row['date'].strip(), '%Y-%m-%d').strftime('%Y-%m-%d')
+                series.setdefault(row['series'].strip(), {})[d] = float(row['value'].replace(',', ''))
+            except (KeyError, AttributeError, TypeError, ValueError):
+                print(f'Warning: {p.name} line {n} skipped: {row}')
+    return {k: sorted(v.items()) for k, v in series.items()}
+
+def manual_metric(mid, label):
+    s = load_manual(mid)
+    head = s.get('COMPOSITE')
+    if not head:
+        if s:
+            print(f'Warning: {mid}.csv has no COMPOSITE series — ignored')
+        return None, []
+    cur_d, cur = head[-1]
+    prev_d, prev = head[-2] if len(head) > 1 else (None, None)
+    cutoff = f'{int(cur_d[:4]) - 1}{cur_d[4:]}'
+    metric = {
+        'id': mid, 'label': label, 'value': r2(cur), 'unit': '', 'prev': r2(prev),
+        'change': r2(cur - prev) if prev is not None else None, 'pct': pct(cur, prev),
+        'asof': cur_d, 'prev_asof': prev_d, 'series': [[d, v] for d, v in head if d >= cutoff],
+        'category': 'freight', 'source': '사용자 제공',
+    }
+    subs = []
+    for name, pts in s.items():
+        if name == 'COMPOSITE':
+            continue
+        pv = pts[-2][1] if len(pts) > 1 else None
+        subs.append({'region': name, 'value': r2(pts[-1][1]), 'prev': r2(pv), 'pct': pct(pts[-1][1], pv)})
+    subs.sort(key=lambda x: -(x['value'] or 0))
+    return metric, subs
+
+manual = {mid: manual_metric(mid, label) for mid, label in MANUAL_INDICES}
+freight_source = {mid: ('manual' if manual[mid][0] else None) for mid, _ in MANUAL_INDICES}
+
 freight_metrics = []
-for mid, label in [('scfi', 'SCFI 종합'), ('bdi', 'BDI')]:
-    x = metric_id('sea', label, mid, 'freight', source='MI2 · KSG')
+for mid, label in MANUAL_INDICES:
+    x = manual[mid][0]
+    if not x and mid != 'ccfi':
+        x = metric_id('sea', label, mid, 'freight', source='MI2 · KSG')
+        if x: freight_source[mid] = 'mi2'
     if x: freight_metrics.append(x)
 for mid, label in [('fleet_ships', '운항 선박 수'), ('fleet_teu', '운항 선대')]:
     x = metric_id('linerlytica', label, mid, 'freight', source='MI2 · Linerlytica')
@@ -166,6 +230,7 @@ for mid, label in [('gscpi', 'GSCPI'), ('gdp', 'GDP 성장률 (월드)'), ('cpi'
 # ---------------------------------------------------------------------------
 sea = connect('sea')
 scfi_regions = []
+bdi_subindices = []
 if sea:
     rows = q(sea, "SELECT region, dt, value FROM index_raw WHERE index_name='SCFI' ORDER BY dt")
     latest_dt = max(r['dt'] for r in rows)
@@ -184,6 +249,11 @@ if sea:
         bdi_subindices.append({'region': r['region'], 'value': r2(r['value']),
                                'prev': r2(bdi_prev.get(r['region'])), 'pct': pct(r['value'], bdi_prev.get(r['region']))})
     sea.close()
+if freight_source['scfi'] == 'manual':
+    scfi_regions = manual['scfi'][1]
+if freight_source['bdi'] == 'manual':
+    bdi_subindices = manual['bdi'][1]
+ccfi_routes = manual['ccfi'][1]
 
 air = connect('air')
 tac_routes = []
@@ -311,6 +381,70 @@ for c in latest_cp['chokepoints']:
     })
 
 # ---------------------------------------------------------------------------
+# Open data — natural disasters (GDACS + USGS) and World Bank macro
+# ---------------------------------------------------------------------------
+NEAR_KM = 500
+ALERT_RANK = {'Red': 0, 'Orange': 1, 'Green': 2}
+GDACS_TYPES = {'EQ': '지진', 'TC': '열대성 폭풍', 'FL': '홍수', 'VO': '화산', 'DR': '가뭄', 'WF': '산불'}
+
+def haversine_km(lat1, lon1, lat2, lon2):
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp, dl = p2 - p1, math.radians(lon2 - lon1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 6371 * 2 * math.asin(math.sqrt(a))
+
+def nearest_chokepoint(lat, lon):
+    if lat is None or lon is None:
+        return None
+    best = min(chokepoints, key=lambda c: haversine_km(lat, lon, c['lat'], c['lon']))
+    km = haversine_km(lat, lon, best['lat'], best['lon'])
+    return {'id': best['id'], 'name': best['name'], 'km': round(km)} if km <= NEAR_KM else None
+
+quakes_raw = jload_opt('open-earthquakes.json')
+gdacs_raw = jload_opt('open-disasters.json')
+wb_raw = jload_opt('open-worldbank.json')
+
+quakes = []
+for x in (quakes_raw or {}).get('items', []):
+    quakes.append({**x, 'near': nearest_chokepoint(x.get('lat'), x.get('lon'))})
+
+# Green earthquakes are covered by USGS; keep every other GDACS event.
+gdacs_events = []
+for x in (gdacs_raw or {}).get('items', []):
+    if x.get('type') == 'EQ' and x.get('alert') == 'Green':
+        continue
+    gdacs_events.append({**x, 'type_label': GDACS_TYPES.get(x.get('type'), x.get('type')),
+                         'near': nearest_chokepoint(x.get('lat'), x.get('lon'))})
+gdacs_events.sort(key=lambda x: (ALERT_RANK.get(x.get('alert'), 9), not x.get('current'), -(datetime.fromisoformat(x['from']).timestamp() if x.get('from') else 0)))
+
+disasters = {
+    'gdacs': {
+        'fetched_at': (gdacs_raw or {}).get('fetched_at'), 'window_days': (gdacs_raw or {}).get('window_days'),
+        'counts': {lvl: sum(1 for x in gdacs_events if x.get('alert') == lvl) for lvl in ALERT_RANK},
+        'items': gdacs_events[:40],
+    } if gdacs_raw else None,
+    'earthquakes': {
+        'fetched_at': quakes_raw.get('fetched_at'), 'count': len(quakes),
+        'm6': sum(1 for x in quakes if (x.get('mag') or 0) >= 6),
+        'max': quakes[0] if quakes else None, 'items': quakes[:40],
+    } if quakes_raw else None,
+    'near_km': NEAR_KM,
+}
+
+worldbank = None
+if wb_raw:
+    ind = wb_raw.get('indicators', {})
+    rows = []
+    for iso3 in wb_raw.get('countries', []):
+        row = {'iso3': iso3}
+        for key in ('gdp_growth', 'inflation', 'trade_pct_gdp'):
+            v = ind.get(key, {}).get('values', {}).get(iso3) or {}
+            row[key] = r2(v.get('value'))
+            row[key + '_year'] = v.get('year')
+        rows.append(row)
+    worldbank = {'fetched_at': wb_raw.get('fetched_at'), 'labels': {k: v.get('label') for k, v in ind.items()}, 'rows': rows}
+
+# ---------------------------------------------------------------------------
 # WorldMonitor scorecard
 # ---------------------------------------------------------------------------
 sc = jload(DATA / 'scorecard.json')
@@ -409,6 +543,19 @@ if gscpi and gscpi['value'] is not None and gscpi['value'] >= 1.5:
 if cpi and cpi['value'] is not None and cpi['value'] >= 3.5:
     add_alert('watch', 'macro', f"World CPI {cpi['value']}%", "물가 압력", {'type': 'metric', 'id': 'cpi'})
 
+for x in gdacs_events:
+    if not x.get('current') or x.get('alert') not in ('Red', 'Orange'):
+        continue
+    near = x.get('near')
+    sev = 'critical' if x['alert'] == 'Red' and near else 'high' if x['alert'] == 'Red' or near else 'watch'
+    where = f" · {near['name']} {near['km']}km" if near else ''
+    add_alert(sev, 'disaster', f"GDACS {x['alert']} · {x.get('name')}", f"{x.get('severity') or x.get('type_label')}{where}", {'type': 'disaster', 'id': str(x.get('id'))})
+for x in quakes:
+    near = x.get('near')
+    if (x.get('mag') or 0) >= 6.5 or ((x.get('mag') or 0) >= 6 and near):
+        where = f" · {near['name']} {near['km']}km" if near else ''
+        add_alert('high' if near else 'watch', 'disaster', f"M{x['mag']} {x.get('place')}", f"USGS · 깊이 {x.get('depth_km') or '-'}km{' · 쓰나미 경보' if x.get('tsunami') else ''}{where}", {'type': 'quake', 'id': x.get('id')})
+
 sev_rank = {'critical': 0, 'high': 1, 'watch': 2, 'info': 3}
 alerts.sort(key=lambda a: sev_rank.get(a['severity'], 9))
 
@@ -435,17 +582,6 @@ chain_links = [
 ]
 
 # ---------------------------------------------------------------------------
-# Optional WorldMonitor live data (API key)
-# ---------------------------------------------------------------------------
-live = None
-live_path = DATA / 'worldmonitor-live.json'
-if live_path.exists():
-    try:
-        live = jload(live_path)
-    except Exception:
-        live = None
-
-# ---------------------------------------------------------------------------
 # Assemble
 # ---------------------------------------------------------------------------
 unified = {
@@ -457,6 +593,10 @@ unified = {
             {'id': 'mi2', 'name': 'MI2 — Global Freight & Trade Intelligence', 'url': 'https://github.com/JamesJang-GU/MI2', 'license': '© JamesJang-GU'},
             {'id': 'wm-chokepoints', 'name': 'WorldMonitor Chokepoint Status (open data)', 'url': 'https://www.worldmonitor.app/data/v1/chokepoints/', 'license': 'CC-BY-4.0', 'attribution': latest_cp['attribution']},
             {'id': 'wm-scorecard', 'name': 'WorldMonitor Five-Factor Scorecard', 'url': 'https://www.worldmonitor.app/api/scorecard/v1/list-five-factor-scorecards', 'license': 'WorldMonitor'},
+            {'id': 'wm-embed', 'name': 'WorldMonitor free live map embed (conflicts / earthquakes / weather)', 'url': 'https://www.worldmonitor.app/embed', 'license': 'WorldMonitor free embed, attribution link required'},
+            {'id': 'gdacs', 'name': 'GDACS — Global Disaster Alert and Coordination System', 'url': 'https://www.gdacs.org/', 'license': 'GDACS (EC JRC / UN OCHA), attribution required'},
+            {'id': 'usgs', 'name': 'USGS Earthquake Hazards Program', 'url': 'https://earthquake.usgs.gov/', 'license': 'U.S. public domain'},
+            {'id': 'worldbank', 'name': 'World Bank Open Data', 'url': 'https://data.worldbank.org/', 'license': 'CC BY 4.0'},
         ],
         'methodology': {
             'composite': '0.40*chokepoint + 0.25*freight + 0.20*energy + 0.15*macro',
@@ -468,13 +608,15 @@ unified = {
         },
     },
     'composite': {
-        'score': composite_score, 'band': band, 'components': components, 'alerts': alerts[:12],
+        'score': composite_score, 'band': band, 'components': components, 'alerts': alerts[:16],
     },
     'freight': {
         'updated': mods.get('sea', {}).get('updated'),
         'metrics': freight_metrics,
+        'sources': freight_source,
         'details': {
             'scfi_regions': scfi_regions,
+            'ccfi_routes': ccfi_routes,
             'bdi_subindices': bdi_subindices,
             'tac_routes': tac_routes,
             'fleet_status': fleet_status,
@@ -493,7 +635,8 @@ unified = {
         'items': chokepoints,
     },
     'energy': {'metrics': energy_metrics},
-    'macro': {'metrics': macro_metrics},
+    'macro': {'metrics': macro_metrics, 'worldbank': worldbank},
+    'disasters': disasters,
     'countries': {
         'source': 'WorldMonitor Five-Factor Scorecard',
         'computed_at': sc.get('computedAt'),
@@ -502,7 +645,6 @@ unified = {
         'selected': ['KR', 'US', 'CN', 'JP', 'DE', 'NL', 'SG', 'AE', 'IN', 'BR'],
     },
     'chain': {'nodes': chain_nodes, 'links': chain_links},
-    'live': live,
 }
 (DATA / 'unified.json').write_text(json.dumps(unified, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
 
@@ -516,5 +658,7 @@ print('unified.json', (DATA / 'unified.json').stat().st_size, 'bytes')
 print('data.js', (ROOT / 'data.js').stat().st_size, 'bytes')
 print('composite', composite_score, band)
 print('components', [(c['id'], c['score']) for c in components])
-print('alerts', len(alerts), 'top:', alerts[0]['title'] if alerts else None)
+print('alerts', min(len(alerts), 16), f'(of {len(alerts)})', 'top:', alerts[0]['title'] if alerts else None)
 print('chokepoints', len(chokepoints), 'countries', len(countries))
+print('freight sources', freight_source)
+print('disasters', len(gdacs_events), 'gdacs,', len(quakes), 'quakes · worldbank', 'ok' if worldbank else 'missing')
