@@ -220,6 +220,12 @@ if x:
     if air: air.close()
     freight_metrics.append(x)
 
+# MI2 summary carries no unit for the freight indices
+FREIGHT_UNITS = {'scfi': 'pt', 'ccfi': 'pt', 'bdi': 'pt', 'tac': '$/kg'}
+for m in freight_metrics:
+    if not m['unit'] and m['id'] in FREIGHT_UNITS:
+        m['unit'] = FREIGHT_UNITS[m['id']]
+
 energy_metrics = []
 for mid, label in [('brent', 'Brent'), ('wti', 'WTI'), ('dubai', 'Dubai')]:
     x = metric_id('oil', label, mid, 'energy', source='MI2 · Opinet')

@@ -182,6 +182,8 @@ tbody tr:hover{background:#151515}
 .card .asof{color:#666;font-size:7.5px;text-align:right}
 .up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--flat)}
 .spark svg{width:100%;height:100%;display:block}
+.spark{position:relative}
+.spark .hl{position:absolute;top:0;bottom:0;width:1px;background:var(--amber);opacity:0;pointer-events:none}
 
 /* ---------- countries ---------- */
 .country-list{display:flex;flex-direction:column;gap:2px;min-height:0;overflow:auto;flex:1 1 0}
@@ -232,6 +234,11 @@ tbody tr:hover{background:#151515}
 .drawer-close{margin-left:auto;background:none;border:1px solid var(--line);color:var(--dim);font-size:12px;
   width:24px;height:24px;cursor:pointer;line-height:1}
 .drawer-close:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.drawer-dl{margin-left:auto;display:flex;gap:4px}
+.drawer-dl[hidden]{display:none}
+.drawer-dl:not([hidden])+.drawer-close{margin-left:6px}
+.dlbtn{color:var(--amber);border:1px solid var(--amber);background:none;font-size:9px;padding:0 7px;height:24px;cursor:pointer;letter-spacing:.06em}
+.dlbtn:hover{background:var(--amber);color:#000}
 .drawer-body{padding:10px 12px 30px;overflow:auto;flex:1}
 .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:55;opacity:0;pointer-events:none;transition:opacity .18s}
 .drawer-backdrop.open{opacity:1;pointer-events:auto}
@@ -350,6 +357,7 @@ tbody tr:hover{background:#151515}
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
     <div><div class="code" id="dcode">DETAIL</div><h2 id="dtitle">Detail</h2><div class="sub" id="dsub"></div></div>
+    <div class="drawer-dl" id="ddl" hidden><button class="dlbtn" onclick="downloadMetric('csv')">CSV ↓</button><button class="dlbtn" onclick="downloadMetric('xlsx')">XLSX ↓</button></div>
     <button class="drawer-close" onclick="closeDrawer()" aria-label="close">✕</button>
   </div>
   <div class="drawer-body" id="dbody"></div>
@@ -412,7 +420,7 @@ function chartSVG(points, color, opts={}){
   const idxs=[0,Math.floor((points.length-1)/2),points.length-1];
   const xlabels=idxs.map(i=>`<text x="${X(i).toFixed(1)}" y="${h-6}" text-anchor="${i===0?'start':i===points.length-1?'end':'middle'}" fill="#777" font-size="8">${esc(points[i][0])}</text>`).join('');
   const last=points[points.length-1];
-  return `<svg viewBox="0 0 ${w} ${h}" class="chart" data-chart="${id}" data-points='${JSON.stringify(points)}' data-color="${color}" data-pad='${JSON.stringify(pad)}' data-w="${w}" data-h="${h}">
+  return `<svg viewBox="0 0 ${w} ${h}" class="chart" data-chart="${id}" data-points='${JSON.stringify(points)}' data-color="${color}" data-pad='${JSON.stringify(pad)}' data-w="${w}" data-h="${h}" data-unit="${esc(opts.unit||'')}">
     <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".22"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
     ${grid}${xlabels}
     <path d="${area}" fill="url(#${id})"/>
@@ -442,13 +450,63 @@ function attachChartHover(root=document){
       const cx=X(i), cy=Y(pts[i][1]);
       line.setAttribute('x1',cx); line.setAttribute('x2',cx); line.setAttribute('opacity','.5');
       dot.setAttribute('cx',cx); dot.setAttribute('cy',cy); dot.setAttribute('opacity','1');
-      tip.innerHTML=`<b>${esc(pts[i][0])}</b><br>${fmt(pts[i][1])}`;
+      tip.innerHTML=`<b>${esc(pts[i][0])}</b><br>${fmt(pts[i][1])} ${esc(svg.dataset.unit||'')}`;
       tip.style.left=Math.min(window.innerWidth-120,e.clientX+12)+'px';
       tip.style.top=Math.min(window.innerHeight-50,e.clientY+12)+'px';
       tip.style.opacity='1';
     });
     zone.addEventListener('mouseleave', ()=>{line.setAttribute('opacity','0');dot.setAttribute('opacity','0');tip.style.opacity='0';});
   });
+}
+
+// Card sparklines: hover shows date · value · unit
+(function(){
+  const tip=document.createElement('div'); tip.className='chart-tip'; document.body.appendChild(tip);
+  let cur=null;
+  const hide=()=>{ if(cur) cur.querySelector('.hl').style.opacity='0'; cur=null; tip.style.opacity='0'; };
+  document.addEventListener('mousemove', e=>{
+    const sp=e.target.closest&&e.target.closest('.spark[data-mid]');
+    if(!sp){ hide(); return; }
+    const m=metricById(sp.dataset.mid), pts=(m&&m.series)||[];
+    if(pts.length<2){ hide(); return; }
+    if(cur&&cur!==sp) hide();
+    cur=sp;
+    const r=sp.getBoundingClientRect();
+    const i=Math.max(0,Math.min(pts.length-1,Math.round((e.clientX-r.left)/r.width*(pts.length-1))));
+    const hl=sp.querySelector('.hl'); hl.style.left=(i/(pts.length-1)*100)+'%'; hl.style.opacity='.7';
+    tip.innerHTML=`<b>${esc(pts[i][0])}</b><br>${fmt(pts[i][1])} ${esc(m.unit||'')}`;
+    tip.style.left=Math.min(window.innerWidth-130,e.clientX+12)+'px';
+    tip.style.top=Math.min(window.innerHeight-50,e.clientY+12)+'px';
+    tip.style.opacity='1';
+  });
+})();
+
+// Drawer download (same CSV / XLSX columns as the MI2 SCFI screen)
+let dlMetric=null, xlsxLib=null;
+const loadXLSX=()=>xlsxLib||(xlsxLib=new Promise((res,rej)=>{
+  const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+  s.onload=()=>res(window.XLSX); s.onerror=()=>{ xlsxLib=null; rej(new Error('XLSX load failed')); };
+  document.head.appendChild(s);
+}));
+function downloadMetric(kind){
+  const m=dlMetric; if(!m) return;
+  const s=m.series||[];
+  const aoa=[['Date','Series','Value','Unit','Change','Change Rate(%)'], ...s.map(([d,v],i)=>{
+    const p=i?s[i-1][1]:null;
+    return [d, m.label, v, m.unit||'', p!=null&&v!=null?+(v-p).toFixed(4):'', p?+((v-p)/p*100).toFixed(2):''];
+  })];
+  const tag=`${m.id}_${m.asof||''}`.replace(/[^A-Za-z0-9가-힣_-]/g,'_');
+  if(kind==='csv'){
+    const cell=v=>{ const t=v==null?'':String(v); return /[",\r\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t; };
+    const csv='\uFEFF'+aoa.map(r=>r.map(cell).join(',')).join('\r\n');
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download=`${tag}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  } else {
+    loadXLSX().then(X=>{
+      const wb=X.utils.book_new(); X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(aoa), m.id.toUpperCase().slice(0,31));
+      X.writeFile(wb, `${tag}.xlsx`);
+    }).catch(()=>alert('XLSX 라이브러리를 불러오지 못했습니다. CSV로 받아주세요.'));
+  }
 }
 
 /* ---------------- map ---------------- */
@@ -582,7 +640,7 @@ function metricCard(m){
     <div class="lab">${esc(m.label)}</div>
     <div class="val">${fmt(m.value)}<em>${esc(m.unit)}</em></div>
     <div class="chg ${cls(m.pct)}">${arrow(m.pct)} ${pct(m.pct)}</div>
-    <div class="spark">${sparkline(m.series,col)}</div>
+    <div class="spark" data-mid="${esc(m.id)}">${sparkline(m.series,col)}<i class="hl"></i></div>
     <div class="asof">${esc(m.asof||'')}</div>
   </article>`;
 }
@@ -779,6 +837,7 @@ function openDetail(type,id){
     else if(id==='chokepoint'){ code='CHOKEPOINT'; title='All chokepoints'; sub='WorldMonitor open data'; body=chokepointListDetail(); }
     else if(id==='disasters'){ code='DISASTER'; title='Natural hazards'; sub=`GDACS ${DZ.gdacs?DZ.gdacs.window_days+'일':''} · USGS M4.5+ 7일`; body=disasterListDetail(); }
   }
+  dlMetric=type==='metric'?metricById(id):null; $('#ddl').hidden=!dlMetric;
   $('#dcode').textContent=code; $('#dtitle').textContent=title; $('#dsub').textContent=sub;
   $('#dbody').innerHTML=body;
   $('#drawer').classList.add('open'); $('#backdrop').classList.add('open');
@@ -843,7 +902,7 @@ function metricDetail(m){
       <div class="dstat"><label>As of</label><b>${esc(m.asof||'-')}</b></div>
     </div>
     <div class="dsec">1-YEAR SERIES</div>
-    ${chartSVG(m.series, col, {w:500,h:170})}
+    ${chartSVG(m.series, col, {w:500,h:170,unit:m.unit})}
     ${extra}
     <div class="dsec">RELATED</div>
     <div class="pillrow">${related.map(x=>`<span class="pill" data-entity="metric" data-id="${x.id}">${esc(x.label)} ${fmt(x.value)}</span>`).join('')}</div>
