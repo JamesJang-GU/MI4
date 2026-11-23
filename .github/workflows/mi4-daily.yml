@@ -60,6 +60,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "no changes"
           else
-            git commit -m "chore: mi4 daily build $(date -u +%Y-%m-%d) [skip ci]"
+            git commit -m "chore: mi4 daily build $(date -u +%Y-%m-%d)"
             git push
           fi
